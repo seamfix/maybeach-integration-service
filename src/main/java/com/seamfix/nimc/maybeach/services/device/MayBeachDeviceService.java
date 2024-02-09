@@ -20,16 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.seamfix.nimc.maybeach.services.payment.MayBeachService;
 import org.springframework.web.client.HttpStatusCodeException;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author nnwachukwu
- *
- */
 @Slf4j
 @Service
 @SuppressWarnings("PMD.GuardLogStatement")
@@ -38,7 +35,7 @@ public class MayBeachDeviceService extends MayBeachService {
 	@Autowired
 	private EncryptionKeyUtil encryptionKeyUtil;
 	@Autowired
-	private ObjectMapper objectMapper;
+	ObjectMapper objectMapper;
 	@Autowired
 	private SettingService settingsService;
 	@Autowired
@@ -123,7 +120,7 @@ public class MayBeachDeviceService extends MayBeachService {
 			}
 			return  cbsResponse;
 		}
-		cbsResponse = objectMapper.convertValue(response.getBody(), CbsRequestResponse.class);
+		cbsResponse = objectMapper.convertValue(response.getBody(), MayBeachRequestResponse.class);
 		doPayloadBackup(cbsDeviceActivationRequest.getProviderDeviceIdentifier(), RequestTypeEnum.DEVICE_ACTIVATION.name(), requestTime, responseTime, url, cbsDeviceActivationRequest , cbsResponse);
 		return cbsResponse;
 	}
@@ -131,94 +128,101 @@ public class MayBeachDeviceService extends MayBeachService {
 	public MayBeachResponse callDeviceCertificationService(CbsDeviceCertificationRequest deviceCertificationRequest) {
 		Date requestTime = new Date();
 
-		String url = appConfig.getCbsDeviceCertificationUri().replace("{deviceId}", safeString(deviceCertificationRequest.getDeviceId()));
+		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
 		log.debug("Device Certification Url: {}", url);
 
-		MayBeachResponse cbsResponse;
+		MayBeachResponse mayBeachResponse = new MayBeachResponse();
 		Date responseTime;
 
 		String validationError = validateRequestParams(deviceCertificationRequest);
 		if (validationError != null && !validationError.isEmpty()) {
-			cbsResponse = new MayBeachResponse(HttpStatus.BAD_REQUEST.value(), validationError, ResponseCodeEnum.VALIDATION_ERROR.getCode(), null);
+			mayBeachResponse = new MayBeachResponse(HttpStatus.BAD_REQUEST.value(), validationError, ResponseCodeEnum.VALIDATION_ERROR.getCode(), null);
 			responseTime = new Date();
-			doPayloadBackup(deviceCertificationRequest.getDeviceId(), RequestTypeEnum.DEVICE_CERTIFICATION.name(), requestTime, responseTime, url, deviceCertificationRequest , cbsResponse);
-			return cbsResponse;
+			doPayloadBackup(deviceCertificationRequest.getDeviceId(), RequestTypeEnum.DEVICE_CERTIFICATION.name(), requestTime, responseTime, url, deviceCertificationRequest , mayBeachResponse);
+			return mayBeachResponse;
 		}
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		String requestJson = mapToJsonString(convertObjectToMap(deviceCertificationRequest));
-		log.debug("Device Certification Request: {}", requestJson);
-		setAccountIdDeviceIdSignatureHeaderParams(headers, deviceCertificationRequest.getDeviceId(), requestJson);
-
-		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-
-		ResponseEntity<String> response;
 		try{
-			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+			Map<String, Object> certificationResponse = graphQLUtility.deviceCertification(deviceCertificationRequest, url);
+			mayBeachResponse.setStatus(HttpStatus.OK.value());
+			mayBeachResponse.setMessage("Success");
+
+			MayBeachClientAppUserData mayBeachClientAppUserData = new MayBeachClientAppUserData();
+			mayBeachClientAppUserData.setEmail((String) certificationResponse.get("code"));
+			mayBeachClientAppUserData.setLastname((String) certificationResponse.get("message"));
+
+			mayBeachResponse.setData(mayBeachClientAppUserData);
+			mayBeachResponse.setCode(HttpStatus.OK.value());
+
 			responseTime = new Date();
 		}catch (HttpStatusCodeException ex){
 			log.error("Error calling callDeviceCertificationService", ex);
 			responseTime = new Date();
-			cbsResponse = handleJsonParseException(ex);
-			doPayloadBackup(deviceCertificationRequest.getDeviceId(), RequestTypeEnum.DEVICE_CERTIFICATION.name(), requestTime, responseTime, url, deviceCertificationRequest , cbsResponse);
+			mayBeachResponse = handleJsonParseException(ex);
+			doPayloadBackup(deviceCertificationRequest.getDeviceId(), RequestTypeEnum.DEVICE_CERTIFICATION.name(), requestTime, responseTime, url, deviceCertificationRequest , mayBeachResponse);
 			if(!getCodes().contains(String.valueOf(ex.getStatusCode().value()))){
-				cbsResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
+				mayBeachResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
 			}
-			return  cbsResponse;
+			return  mayBeachResponse;
 		}
-		cbsResponse = objectMapper.convertValue(response.getBody(), CbsRequestResponse.class);
-		doPayloadBackup(deviceCertificationRequest.getDeviceId(), RequestTypeEnum.DEVICE_CERTIFICATION.name(), requestTime, responseTime, url, deviceCertificationRequest , cbsResponse);
+		catch (IOException e){
+			log.error("Exception occurred: {}", e.getMessage());
+			responseTime = new Date();
+		}
+		doPayloadBackup(deviceCertificationRequest.getDeviceId(), RequestTypeEnum.DEVICE_CERTIFICATION.name(), requestTime, responseTime, url, deviceCertificationRequest , mayBeachResponse);
 
-		return cbsResponse;
+		return mayBeachResponse;
 	}
 
 	public MayBeachResponse callFetchActivationDataService(String deviceId, String requestId) {
 		Date requestTime = new Date();
-		String url = appConfig.getCbsFetchActivationUri().replace("{requestId}", safeString(requestId));
+		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
 		log.debug("Fetch Activation Data Url: {}", url);
 
-		CbsRequestResponse cbsResponse;
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		setAccountIdDeviceIdSignatureHeaderParams(headers, deviceId, null);
-
-		HttpEntity<String> entity = new HttpEntity<>(headers);
+		MayBeachRequestResponse mayBeachResponse = new MayBeachRequestResponse();
 
 		Date responseTime;
+		String algorithm = "";
 
-		ResponseEntity<String> response;
 		try{
-			response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+			Map<String, Object> certificationResponse = graphQLUtility.fetchActivationData(deviceId, requestId, url);
+			mayBeachResponse.setStatus(HttpStatus.OK.value());
+			mayBeachResponse.setMessage("Success");
+
+			MayBeachClientAppUserData mayBeachClientAppUserData = new MayBeachClientAppUserData();
+			mayBeachClientAppUserData.setEmail((String) certificationResponse.get("code"));
+			mayBeachClientAppUserData.setLastname((String) certificationResponse.get("message"));
+
+			mayBeachResponse.setData(mayBeachClientAppUserData);
+			mayBeachResponse.setCode(HttpStatus.OK.value());
+			algorithm = (String) certificationResponse.get("algorithm");
+
 			responseTime = new Date();
 		}catch (HttpStatusCodeException ex){
 			log.debug("Fetch Activation Data Response Body: {}", ex.getResponseBodyAsString());
 			responseTime = new Date();
-			cbsResponse = handleJsonParseException(ex);
-			doPayloadBackup(deviceId, RequestTypeEnum.FETCH_ACTIVATION_DATA.name(), requestTime, responseTime, url, null , cbsResponse);
+			mayBeachResponse = handleJsonParseException(ex);
+			doPayloadBackup(deviceId, RequestTypeEnum.FETCH_ACTIVATION_DATA.name(), requestTime, responseTime, url, null , mayBeachResponse);
 			if(!getCodes().contains(String.valueOf(ex.getRawStatusCode()))){
-				cbsResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
+				mayBeachResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
 			}
-			return  cbsResponse;
+			return  mayBeachResponse;
 		}
-		log.debug("Fetch Activation Data Response Body: {}", response.getBody());
-		cbsResponse = objectMapper.convertValue(response.getBody(), CbsRequestResponse.class);
+		catch (IOException e){
+			log.error("Exception occured:: {}", e.getMessage());
+			responseTime = new Date();
+		}
 
-		Map<String, Object> cbsResponseData = null;
-
-		if(cbsResponse.getCode() == HttpStatus.OK.value()) {
-			cbsResponseData = (Map<String, Object>) cbsResponse.getData();
-			String encryptedData = (String) cbsResponseData.get("data");
-			String algorithm = (String) cbsResponseData.get("algorithm");
+		if(mayBeachResponse.getCode() == HttpStatus.OK.value()) {
+			String encryptedData = (String) mayBeachResponse.getData();
 
 			DeviceActivationDataPojo decryptedData = objectMapper.convertValue(encryptionKeyUtil.decrypt(appConfig.getCbsApiKey(), encryptedData, algorithm), DeviceActivationDataPojo.class);
 
-			cbsResponse.setData(decryptedData);
+			mayBeachResponse.setData(decryptedData);
 		}
 
-		doPayloadBackup(deviceId, RequestTypeEnum.FETCH_ACTIVATION_DATA.name(), requestTime, responseTime, url, cbsResponseData , cbsResponse);
-		return cbsResponse;
+		doPayloadBackup(deviceId, RequestTypeEnum.FETCH_ACTIVATION_DATA.name(), requestTime, responseTime, url, deviceId , mayBeachResponse);
+		return mayBeachResponse;
 	}
 
 	@SuppressWarnings({"PMD.NcssCount", "PMD.AvoidCatchingGenericException"})
@@ -237,15 +241,8 @@ public class MayBeachDeviceService extends MayBeachService {
 			doPayloadBackup(userLoginRequest.getDeviceId(), RequestTypeEnum.DEVICE_USER_LOGIN.name(), requestTime, responseTime, url, userLoginRequest , mayBeachResponse);
 			return mayBeachResponse;
 		}
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		String requestJson = mapToJsonString(convertObjectToMap(userLoginRequest));
-		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-
-		ResponseEntity<String> response;
 		try{
-			Map<String, Object> loginResponse = graphQLUtility.login(requestJson, url);
+			Map<String, Object> loginResponse = graphQLUtility.login(userLoginRequest, url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
 			mayBeachResponse.setMessage("Success");
 
@@ -257,10 +254,7 @@ public class MayBeachDeviceService extends MayBeachService {
 			mayBeachClientAppUserData.setLoginId((String) loginResponse.get("id"));
 
 			mayBeachResponse.setData(mayBeachClientAppUserData);
-
-			mayBeachResponse.setCode(ResponseCodeEnum.PROCEED.getCode());
-
-			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+			mayBeachResponse.setCode(HttpStatus.OK.value());
 			responseTime = new Date();
 		}catch (HttpStatusCodeException ex){
 			log.error("Error calling CBS DeviceUserLoginService", ex);
@@ -274,12 +268,11 @@ public class MayBeachDeviceService extends MayBeachService {
 			return mayBeachResponse;
 		}catch (Exception e){
 			log.error("Error calling CBS DeviceUserLoginService", e);
-			mayBeachResponse = new CbsRequestResponse();
+			mayBeachResponse = new MayBeachRequestResponse();
 			mayBeachResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
 			mayBeachResponse.setCode(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getCode());
 			return mayBeachResponse;
 		}
-		mayBeachResponse = objectMapper.convertValue(response.getBody(), CbsRequestResponse.class);
 		doPayloadBackup(userLoginRequest.getDeviceId(), RequestTypeEnum.DEVICE_USER_LOGIN.name(), requestTime, responseTime, url, userLoginRequest , mayBeachResponse);
 
 		return mayBeachResponse;
@@ -318,7 +311,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		}catch (HttpStatusCodeException ex){
 			log.error("Error calling CBS Heartbeats Service", ex);
 			responseTime = new Date();
-			cbsResponse = objectMapper.convertValue(ex.getResponseBodyAsString(), CbsRequestResponse.class);
+			cbsResponse = objectMapper.convertValue(ex.getResponseBodyAsString(), MayBeachRequestResponse.class);
 		}catch (Exception e) {
 			log.error("Error calling CBS Heartbeats Service", e);
 			responseTime = new Date();

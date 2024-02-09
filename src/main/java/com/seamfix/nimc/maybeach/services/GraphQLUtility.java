@@ -1,6 +1,9 @@
 package com.seamfix.nimc.maybeach.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
+import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
 import com.seamfix.nimc.maybeach.enums.SettingsEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +36,17 @@ public class GraphQLUtility {
         return headers;
     }
 
-    public Map login(String query, String url) throws IOException {
+    public Map login(CbsDeviceUserLoginRequest request, String url) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
-        Map response = new ConcurrentHashMap();
+        Map<String, String> payload = new ConcurrentHashMap();
+        payload.put("device_id", request.getDeviceId());
+        payload.put("username", request.getLoginId());
+        payload.put("password", request.getPassword());
 
-        HttpEntity<Map<String, Object>> requestEntity = getMapHttpEntity(query, headers);
+        Map response = new ConcurrentHashMap();
+        HttpEntity<Map<String, Object>> requestEntity = getMapLoginEntity(objectMapper.writeValueAsString(payload), headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
                 url,
                 HttpMethod.POST,
@@ -52,14 +59,84 @@ public class GraphQLUtility {
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
             response = objectMapper.readValue(responseBody, Map.class);
-//            MayBeachResponse graphQLResponse = objectMapper.readValue(responseBody, MayBeachResponse.class);
+        }
+        else {
+            response = extractErrorData(responseEntity, response);
         }
         return response;
+    }
 
+    public Map deviceCertification(CbsDeviceCertificationRequest request, String url) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        headers = generateMayBeachHeaders(headers);
+        Map<String, Object> payload = new ConcurrentHashMap();
+        payload.put("device_id", request.getDeviceId());
+        payload.put("agent_id", request.getRequestedByProviderIdentifier());
+        payload.put("longitude", request.getCurrentLocationLongitude());
+        payload.put("latitude", request.getCurrentLocationLatitude());
+
+        Map response = new ConcurrentHashMap();
+        HttpEntity<Map<String, Object>> requestEntity = getMapDeviceCertificationEntity(objectMapper.writeValueAsString(payload), headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
+
+        log.info("Response from MayBeach: {}", requestEntity);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            String responseBody = responseEntity.getBody();
+            response = objectMapper.readValue(responseBody, Map.class);
+        }
+        else {
+            response = extractErrorData(responseEntity, response);
+        }
+        return response;
+    }
+
+    public Map fetchActivationData(String deviceId, String requestId, String url) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        headers = generateMayBeachHeaders(headers);
+        Map<String, Object> payload = new ConcurrentHashMap();
+        payload.put("device_id", deviceId);
+        payload.put("requestId", requestId);
+
+        Map response = new ConcurrentHashMap();
+        HttpEntity<Map<String, Object>> requestEntity = getMapFetchActivationDataEntity(objectMapper.writeValueAsString(payload), headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
+
+        log.info("Response from MayBeach: {}", requestEntity);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            String responseBody = responseEntity.getBody();
+            response = objectMapper.readValue(responseBody, Map.class);
+        }
+        else {
+            response = extractErrorData(responseEntity, response);
+        }
+        return response;
+    }
+
+    private Map extractErrorData(ResponseEntity<String> responseEntity, Map response){
+        try {
+            String responseBody = responseEntity.getBody();
+            return objectMapper.readValue(responseBody, Map.class);
+        }catch (JsonProcessingException e){
+            return response;
+        }
     }
 
     @NotNull
-    private static HttpEntity<Map<String, Object>> getMapHttpEntity(String query, HttpHeaders headers) {
+    private static HttpEntity<Map<String, Object>> getMapLoginEntity(String query, HttpHeaders headers) {
         String mutation = "mutation ($metadata: String) {\n" +
                 "  deviceUserLogin(input: [{\n" +
                 "    metadata: $metadata\n" +
@@ -71,7 +148,51 @@ public class GraphQLUtility {
                 "  }\n" +
                 "}";
 
-        // Create a Map to represent the GraphQL request
+        Map<String, Object> variables = new ConcurrentHashMap<>();
+        variables.put("metadata", query);
+
+        Map<String, Object> requestBody = new ConcurrentHashMap<>();
+        requestBody.put("query", mutation);
+        requestBody.put("variables", variables);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        return requestEntity;
+    }
+
+    @NotNull
+    private static HttpEntity<Map<String, Object>> getMapDeviceCertificationEntity(String query, HttpHeaders headers) {
+        String mutation = "mutation ($metadata: String) {\n" +
+                "  deviceActivationRequest(input: [{\n" +
+                "    metadata: $metadata\n" +
+                "  }]) {\n" +
+                "    id\n" +
+                "    code\n" +
+                "    message\n" +
+                "  }\n" +
+                "}";
+
+        Map<String, Object> variables = new ConcurrentHashMap<>();
+        variables.put("metadata", query);
+
+        Map<String, Object> requestBody = new ConcurrentHashMap<>();
+        requestBody.put("query", mutation);
+        requestBody.put("variables", variables);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        return requestEntity;
+    }
+
+    @NotNull
+    private static HttpEntity<Map<String, Object>> getMapFetchActivationDataEntity(String query, HttpHeaders headers) {
+        String mutation = "mutation ($metadata: String) {\n" +
+                "  fetchActivationData(input: [{\n" +
+                "    metadata: $metadata\n" +
+                "  }]) {\n" +
+                "    id\n" +
+                "    code\n" +
+                "    message\n" +
+                "  }\n" +
+                "}";
 
         Map<String, Object> variables = new ConcurrentHashMap<>();
         variables.put("metadata", query);

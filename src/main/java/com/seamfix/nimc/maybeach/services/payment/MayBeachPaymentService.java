@@ -9,7 +9,7 @@ import com.seamfix.nimc.maybeach.dto.CbsPaymentRequest;
 import com.seamfix.nimc.maybeach.dto.CbsPaymentStatusRequest;
 import com.seamfix.nimc.maybeach.dto.CbsPaymentStatusRequestV3;
 import com.seamfix.nimc.maybeach.dto.CbsPaymentStatusResponse;
-import com.seamfix.nimc.maybeach.dto.CbsRequestResponse;
+import com.seamfix.nimc.maybeach.dto.MayBeachRequestResponse;
 import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.dto.CbsResponseData;
 import com.seamfix.nimc.maybeach.dto.PaymentStatusData;
@@ -237,7 +237,7 @@ public class MayBeachPaymentService extends MayBeachService {
 	}
 
 	private MayBeachResponse callPaymentStatusV3(CbsPaymentStatusRequest request){
-		CbsRequestResponse response = new CbsRequestResponse();
+		MayBeachRequestResponse response = new MayBeachRequestResponse();
 		response.setStatus(ResponseCodeEnum.ERROR.getCode());
 		response.setCode(ResponseCodeEnum.ERROR.getCode());
 		response.setMessage(ResponseCodeEnum.ERROR.getDescription());
@@ -316,8 +316,8 @@ public class MayBeachPaymentService extends MayBeachService {
 		return response;
 	}
 
-	private CbsRequestResponse processCbsResponseV3(ResponseEntity<Map> response){
-		CbsRequestResponse paymentStatusResponse = new CbsRequestResponse();
+	private MayBeachRequestResponse processCbsResponseV3(ResponseEntity<Map> response){
+		MayBeachRequestResponse paymentStatusResponse = new MayBeachRequestResponse();
 		Map cbsResponseMap = (null != response && null != response.getBody()) ? response.getBody() : null;
 		if(null != cbsResponseMap) {
 			//get the code and message from the response

@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.seamfix.nimc.maybeach.configs.AppConfig;
 import com.google.gson.JsonSyntaxException;
-import com.seamfix.nimc.maybeach.dto.CbsRequestResponse;
+import com.seamfix.nimc.maybeach.dto.MayBeachRequestResponse;
 import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.services.jms.JmsSender;
 import com.seamfix.nimc.maybeach.utils.Sha512Impl;
@@ -180,13 +180,13 @@ public class MayBeachService {
 		return aString == null ? "null" : aString;
 	}
 
-	protected CbsRequestResponse handleJsonParseException(HttpStatusCodeException exception) {
-		CbsRequestResponse cbsResponse;
+	protected MayBeachRequestResponse handleJsonParseException(HttpStatusCodeException exception) {
+		MayBeachRequestResponse cbsResponse;
 		try {
-			cbsResponse = objectMapper.convertValue(exception.getResponseBodyAsString(), CbsRequestResponse.class);
+			cbsResponse = objectMapper.convertValue(exception.getResponseBodyAsString(), MayBeachRequestResponse.class);
 		} catch (JsonSyntaxException e) {
 			log.error("Error parsing cbs response", e);
-			cbsResponse = new CbsRequestResponse(exception.getStatusCode().value(), exception.getResponseBodyAsString());
+			cbsResponse = new MayBeachRequestResponse(exception.getStatusCode().value(), exception.getResponseBodyAsString());
 		}
 		return cbsResponse;
 	}

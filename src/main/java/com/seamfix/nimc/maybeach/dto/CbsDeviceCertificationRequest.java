@@ -7,18 +7,11 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
-/**
- * @author nnwachukwu
- *
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 public class CbsDeviceCertificationRequest implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -5773819000019695219L;
 
     @NotBlank(message = "Please provide the device ID")

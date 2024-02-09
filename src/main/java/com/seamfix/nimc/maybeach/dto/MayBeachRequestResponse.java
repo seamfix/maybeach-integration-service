@@ -12,7 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class CbsRequestResponse extends MayBeachResponse {
+public class MayBeachRequestResponse extends MayBeachResponse {
 
 	/**
 	 * 
@@ -22,10 +22,10 @@ public class CbsRequestResponse extends MayBeachResponse {
 	
 	private Object data;
 
-	public CbsRequestResponse() {
+	public MayBeachRequestResponse() {
 	}
 
-	public CbsRequestResponse(int code, String message) {
+	public MayBeachRequestResponse(int code, String message) {
 		super(code, message);
 	}
 }

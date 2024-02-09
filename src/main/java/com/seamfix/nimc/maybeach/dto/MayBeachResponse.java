@@ -19,4 +19,8 @@ public class MayBeachResponse implements Serializable{
 	private int code = -1;
 	private MayBeachClientAppUserData data;
 
+	public MayBeachResponse(int status, String message) {
+		this.status = status;
+		this.message = message;
+	}
 }

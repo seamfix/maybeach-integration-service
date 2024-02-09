@@ -5,7 +5,7 @@ import com.seamfix.nimc.maybeach.dto.CbsDeviceActivationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
 import com.seamfix.nimc.maybeach.dto.CbsHeartBeatsRequest;
-import com.seamfix.nimc.maybeach.dto.CbsRequestResponse;
+import com.seamfix.nimc.maybeach.dto.MayBeachRequestResponse;
 import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.dto.DeviceActivationDataPojo;
 import com.seamfix.nimc.maybeach.dto.DeviceInfo;
@@ -64,7 +64,7 @@ public class CbsDeviceTest {
         deviceActivationRequest.setLocation("LEKKI");
 
         target.sendDeviceActivationRequest(deviceActivationRequest);
-        CbsRequestResponse response = (CbsRequestResponse) target.sendDeviceActivationRequest(deviceActivationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceActivationRequest(deviceActivationRequest);
 
         assertNotNull(response);
         assertEquals(409, response.getCode());
@@ -89,7 +89,7 @@ public class CbsDeviceTest {
         deviceActivationRequest.setRequestId(deviceId);
         deviceActivationRequest.setLocation("LEKKI");
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendDeviceActivationRequest(deviceActivationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceActivationRequest(deviceActivationRequest);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());
@@ -108,7 +108,7 @@ public class CbsDeviceTest {
         deviceCertificationRequest.setRequestedByLastName("Nwachukwu");
         deviceCertificationRequest.setRequestedByFirstName("Nneoma");
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendDeviceCertificationRequest(deviceCertificationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceCertificationRequest(deviceCertificationRequest);
 
         assertNotNull(response);
         assertEquals(400, response.getCode());
@@ -127,7 +127,7 @@ public class CbsDeviceTest {
         deviceCertificationRequest.setRequestedByLastName("Nwachukwu");
         deviceCertificationRequest.setRequestedByFirstName("Nneoma");
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendDeviceCertificationRequest(deviceCertificationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceCertificationRequest(deviceCertificationRequest);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());
@@ -140,7 +140,7 @@ public class CbsDeviceTest {
         String deviceId = "X0-X0-X0-X0-X0";
         String requestId = "J001";
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendFetchActivationDataRequest(deviceId,requestId);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendFetchActivationDataRequest(deviceId,requestId);
 
         assertNotNull(response);
         assertEquals(202, response.getCode());
@@ -153,7 +153,7 @@ public class CbsDeviceTest {
         String deviceId = "MANTRA-911573953260076";
         String requestId = "MANTRA-911573953260076-1651044318649";
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendFetchActivationDataRequest(deviceId,requestId);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendFetchActivationDataRequest(deviceId,requestId);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());
@@ -168,7 +168,7 @@ public class CbsDeviceTest {
         userLoginRequest.setLoginId("UNKNOWN_USER");
         userLoginRequest.setPassword("password");
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendDeviceUserLoginRequest(userLoginRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceUserLoginRequest(userLoginRequest);
 
         assertNotNull(response);
         assertEquals(401, response.getCode());
@@ -183,7 +183,7 @@ public class CbsDeviceTest {
         userLoginRequest.setLoginId("12345678995");
         userLoginRequest.setPassword("P@ssw0rd!");
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendDeviceUserLoginRequest(userLoginRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceUserLoginRequest(userLoginRequest);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());
@@ -305,7 +305,7 @@ public class CbsDeviceTest {
         String deviceId = "MANTRA-911573953260076";
         String requestId = "MANTRA-911573953260076-1651044318649";
 
-        CbsRequestResponse response = (CbsRequestResponse) target.sendFetchActivationDataRequest(deviceId,requestId);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendFetchActivationDataRequest(deviceId,requestId);
         DeviceActivationDataPojo data = (DeviceActivationDataPojo) response.getData();
 
         assertNotNull(response);

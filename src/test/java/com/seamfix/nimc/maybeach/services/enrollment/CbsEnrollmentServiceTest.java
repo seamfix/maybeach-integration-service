@@ -6,7 +6,7 @@ import com.seamfix.nimc.maybeach.dto.CbsEnrollmentNotificationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsNewDeviceNotification;
 import com.seamfix.nimc.maybeach.dto.CbsPreEnrollmentCheckRequest;
 import com.seamfix.nimc.maybeach.dto.CbsPreEnrollmentVerificationResponse;
-import com.seamfix.nimc.maybeach.dto.CbsRequestResponse;
+import com.seamfix.nimc.maybeach.dto.MayBeachRequestResponse;
 import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.dto.Fingers;
 import com.seamfix.nimc.maybeach.services.jms.JmsSender;
@@ -118,7 +118,7 @@ public class CbsEnrollmentServiceTest {
 
 	@Test
 	void callGetEntityStatus_ForInvalidDeviceId_ShouldReturnNull() {
-		CbsRequestResponse response = (CbsRequestResponse) target.getEntityStatus(entityType, entityIdentifier, "INVALID-DEVICE-ID");
+		MayBeachRequestResponse response = (MayBeachRequestResponse) target.getEntityStatus(entityType, entityIdentifier, "INVALID-DEVICE-ID");
 
 		assertNotNull(response);
 		assertEquals(400, response.getCode());
@@ -129,7 +129,7 @@ public class CbsEnrollmentServiceTest {
 	void callGetEntityStatus_ForUnknownEntity_ShouldReturnNotFound() {
 		String entityIdentifier = "UNKNOWN_ESA_CODE";
 
-		CbsRequestResponse response = (CbsRequestResponse) target.getEntityStatus(entityType, entityIdentifier, deviceId);
+		MayBeachRequestResponse response = (MayBeachRequestResponse) target.getEntityStatus(entityType, entityIdentifier, deviceId);
 
 		assertNotNull(response);
 		assertEquals(400, response.getCode());
@@ -138,7 +138,7 @@ public class CbsEnrollmentServiceTest {
 
 	@Test
 	void callGetEntityStatus_ForValidRequest_ShouldReturnSuccess() {
-		CbsRequestResponse response = (CbsRequestResponse) target.getEntityStatus(entityType, entityIdentifier, deviceId);
+		MayBeachRequestResponse response = (MayBeachRequestResponse) target.getEntityStatus(entityType, entityIdentifier, deviceId);
 
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
@@ -191,7 +191,7 @@ public class CbsEnrollmentServiceTest {
 
 		preEnrollmentCheckRequest.setFingers(fingersList);
 
-		CbsRequestResponse response = (CbsRequestResponse) target.doPreEnrollmentCheck(preEnrollmentCheckRequest);
+		MayBeachRequestResponse response = (MayBeachRequestResponse) target.doPreEnrollmentCheck(preEnrollmentCheckRequest);
 
 		assertNotNull(response);
 		assertEquals(200, response.getCode());
