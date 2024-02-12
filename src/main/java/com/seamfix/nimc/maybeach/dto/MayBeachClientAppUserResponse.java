@@ -23,6 +23,7 @@ public class MayBeachClientAppUserResponse extends MayBeachResponse{
 		this.message = message;
 	}
 
+	@Override
 	public String getMessage() {
 		return message == null? "Error processing MAYBEACH request": message;
 	}

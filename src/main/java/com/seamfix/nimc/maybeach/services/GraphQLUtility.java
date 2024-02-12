@@ -22,7 +22,20 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class GraphQLUtility {
+
+    @SuppressWarnings("PMD.FieldNamingConventions")
+    private static final String RESPONSE_FROM_MAY_BEACH = "Response from MayBeach: {}";
+    @SuppressWarnings("PMD.FieldNamingConventions")
+    private static final String META_DATA = "mutation ($metadata: String) {\n";
+    @SuppressWarnings("PMD.FieldNamingConventions")
+    private static final String DEVICE_ID = "device_id";
+
+    @SuppressWarnings("PMD.FieldNamingConventions")
+    private final String MUTATION_REQUEST = "(input: [{\n" +
+        "    metadata: $metadata\n" +
+                "  }]) {\n";
 
     private final SettingService settingsService;
     private final RestTemplate restTemplate;
@@ -40,13 +53,11 @@ public class GraphQLUtility {
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
         Map<String, String> payload = new ConcurrentHashMap();
-        payload.put("device_id", request.getDeviceId());
+        payload.put(DEVICE_ID, request.getDeviceId());
         payload.put("username", request.getLoginId());
         payload.put("password", request.getPassword());
-        String mutation = "mutation ($metadata: String) {\n" +
-                "  deviceUserLogin(input: [{\n" +
-                "    metadata: $metadata\n" +
-                "  }]) {\n" +
+        String mutation = META_DATA +
+                "  deviceUserLogin"+MUTATION_REQUEST+
                 "    id\n" +
                 "    agentfirstname\n" +
                 "    agentlastname\n" +
@@ -62,7 +73,7 @@ public class GraphQLUtility {
                 String.class
         );
 
-        log.info("Response from MayBeach: {}", requestEntity);
+        log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
@@ -79,11 +90,9 @@ public class GraphQLUtility {
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
         Map<String, Object> payload = new ConcurrentHashMap();
-        payload.put("device_id", deviceId);
-        String mutation = "mutation ($metadata: String) {\n" +
-                "  deviceCertificationRequest(input: [{\n" +
-                "    metadata: $metadata\n" +
-                "  }]) {\n" +
+        payload.put(DEVICE_ID, deviceId);
+        String mutation = META_DATA +
+                "  deviceCertificationRequest"+ MUTATION_REQUEST +
                 "    id\n" +
                 "    code\n" +
                 "    message\n" +
@@ -99,7 +108,7 @@ public class GraphQLUtility {
                 String.class
         );
 
-        log.info("Response from MayBeach: {}", requestEntity);
+        log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
@@ -116,14 +125,12 @@ public class GraphQLUtility {
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
         Map<String, Object> payload = new ConcurrentHashMap();
-        payload.put("device_id", deviceCertificationRequest.getDeviceId());
+        payload.put(DEVICE_ID, deviceCertificationRequest.getDeviceId());
         payload.put("agent_id", deviceCertificationRequest.getCertifierLoginId());
         payload.put("longitude", deviceCertificationRequest.getCurrentLocationLongitude());
         payload.put("latitude", deviceCertificationRequest.getCurrentLocationLatitude());
-        String mutation = "mutation ($metadata: String) {\n" +
-                "  deviceActivationRequest(input: [{\n" +
-                "    metadata: $metadata\n" +
-                "  }]) {\n" +
+        String mutation = META_DATA +
+                "  deviceActivationRequest"+ MUTATION_REQUEST + " {\n" +
                 "    code\n" +
                 "    message\n" +
                 "  }\n" +
@@ -138,7 +145,7 @@ public class GraphQLUtility {
                 String.class
         );
 
-        log.info("Response from MayBeach: {}", requestEntity);
+        log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
@@ -155,13 +162,11 @@ public class GraphQLUtility {
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
         Map<String, Object> payload = new ConcurrentHashMap();
-        payload.put("device_id", deviceId);
+        payload.put(DEVICE_ID, deviceId);
         payload.put("requestId", requestId);
 
-        String mutation = "mutation ($metadata: String) {\n" +
-                "  fetchActivationData(input: [{\n" +
-                "    metadata: $metadata\n" +
-                "  }]) {\n" +
+        String mutation = META_DATA +
+                "  fetchActivationData"+MUTATION_REQUEST+
                 "    id\n" +
                 "    code\n" +
                 "    message\n" +
@@ -177,7 +182,7 @@ public class GraphQLUtility {
                 String.class
         );
 
-        log.info("Response from MayBeach: {}", requestEntity);
+        log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();

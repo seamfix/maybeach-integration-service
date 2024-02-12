@@ -235,7 +235,6 @@ public class MayBeachDeviceService extends MayBeachService {
 		try{
 			Map<String, Object> loginResponse = graphQLUtility.login(userLoginRequest, url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
-			mayBeachResponse.setMessage("Success");
 
 			MayBeachClientAppUserData mayBeachClientAppUserData = new MayBeachClientAppUserData();
 			mayBeachClientAppUserData.setEmail((String) loginResponse.get("agentemail"));
@@ -245,28 +244,30 @@ public class MayBeachDeviceService extends MayBeachService {
 			mayBeachClientAppUserData.setLoginId((String) loginResponse.get("id"));
 
 			mayBeachResponse.setData(mayBeachClientAppUserData);
-			mayBeachResponse.setCode(HttpStatus.OK.value());
-			responseTime = new Date();
+			buildMayBeachResponse(mayBeachResponse, "Success", HttpStatus.OK.value());
+					responseTime = new Date();
 		}catch (HttpStatusCodeException ex){
 			log.error("Error calling CBS DeviceUserLoginService", ex);
 			responseTime = new Date();
 			MayBeachResponse mayBeachResponseException = handleJsonParseException(ex);
 			doPayloadBackup(userLoginRequest.getDeviceId(), RequestTypeEnum.DEVICE_USER_LOGIN.name(), requestTime, responseTime, url, userLoginRequest , mayBeachResponseException);
 			if(!getCodes().contains(String.valueOf(ex.getRawStatusCode()))){
-				mayBeachResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
-				mayBeachResponse.setCode(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getCode());
+				buildMayBeachResponse(mayBeachResponse, ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription(), ResponseCodeEnum.UNABLE_TO_REACH_CBS.getCode());
 			}
 			return mayBeachResponse;
-		}catch (Exception e){
+		}catch (IOException e){
 			log.error("Error calling CBS DeviceUserLoginService", e);
-			MayBeachResponse mayBeachResponseException = new MayBeachRequestResponse();
-			mayBeachResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
-			mayBeachResponse.setCode(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getCode());
+			buildMayBeachResponse(mayBeachResponse, ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription(), ResponseCodeEnum.UNABLE_TO_REACH_CBS.getCode());
 			return mayBeachResponse;
 		}
 		doPayloadBackup(userLoginRequest.getDeviceId(), RequestTypeEnum.DEVICE_USER_LOGIN.name(), requestTime, responseTime, url, userLoginRequest , mayBeachResponse);
 
 		return mayBeachResponse;
+	}
+
+	private void buildMayBeachResponse(MayBeachClientAppUserResponse mayBeachRequestResponse, String message,  int code){
+		mayBeachRequestResponse.setMessage(message);
+		mayBeachRequestResponse.setCode(code);
 	}
 
 }
