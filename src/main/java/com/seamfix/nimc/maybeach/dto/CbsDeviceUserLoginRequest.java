@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
- * @author nnwachukwu
+ * @author Athanasius
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

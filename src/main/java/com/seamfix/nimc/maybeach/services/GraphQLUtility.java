@@ -2,6 +2,7 @@ package com.seamfix.nimc.maybeach.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.seamfix.nimc.maybeach.dto.CbsDeviceActivationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
 import com.seamfix.nimc.maybeach.enums.SettingsEnum;
@@ -120,15 +121,15 @@ public class GraphQLUtility {
         return response;
     }
 
-    public Map deviceActivationRequest(CbsDeviceCertificationRequest deviceCertificationRequest, String url) throws IOException {
+    public Map deviceActivationRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
         Map<String, Object> payload = new ConcurrentHashMap();
-        payload.put(DEVICE_ID, deviceCertificationRequest.getDeviceId());
-        payload.put("agent_id", deviceCertificationRequest.getCertifierLoginId());
-        payload.put("longitude", deviceCertificationRequest.getCurrentLocationLongitude());
-        payload.put("latitude", deviceCertificationRequest.getCurrentLocationLatitude());
+        payload.put(DEVICE_ID, deviceCertificationRequest.getProviderDeviceIdentifier());
+        payload.put("agent_id", deviceCertificationRequest.getEsaCode());
+        payload.put("longitude", deviceCertificationRequest.getActivationLocationLongitude());
+        payload.put("latitude", deviceCertificationRequest.getActivationLocationLatitude());
         String mutation = META_DATA +
                 "  deviceActivationRequest"+ MUTATION_REQUEST + " {\n" +
                 "    code\n" +
@@ -137,22 +138,26 @@ public class GraphQLUtility {
                 "}";
 
         Map response = new ConcurrentHashMap();
-        HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, objectMapper.writeValueAsString(payload), headers);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
 
-        log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+        try {
+            HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, objectMapper.writeValueAsString(payload), headers);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
 
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            String responseBody = responseEntity.getBody();
-            response = objectMapper.readValue(responseBody, Map.class);
-        }
-        else {
-            response = extractErrorData(responseEntity, response);
+            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                String responseBody = responseEntity.getBody();
+                response = objectMapper.readValue(responseBody, Map.class);
+            } else {
+                response = extractErrorData(responseEntity, response);
+            }
+        }catch (IOException e){
+            log.error("Exception occurred:: deviceActivationRequest: {}", response);
         }
         return response;
     }

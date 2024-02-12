@@ -15,10 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-/**
- * @author nnwachukwu
- *
- */
 @RestController
 @RequestMapping("/device")
 public class MayBeachDeviceController {
@@ -27,7 +23,7 @@ public class MayBeachDeviceController {
 	private MayBeachDeviceService mayBeachResponse;
 
 	@PostMapping("/request-activation")
-	public MayBeachResponse deviceActivationRequest(@Valid @RequestBody CbsDeviceActivationRequest cbsDeviceActivationRequest){
+	public MayBeachResponse deviceActivationRequest(@RequestBody CbsDeviceActivationRequest cbsDeviceActivationRequest){
 		return mayBeachResponse.sendDeviceActivationRequest(cbsDeviceActivationRequest);
 	}
 

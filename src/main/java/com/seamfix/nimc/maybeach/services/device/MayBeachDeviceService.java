@@ -79,7 +79,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
 		log.debug("Device Activation Url: {}", url);
 
-		MayBeachResponse mayBeachResponse;
+		MayBeachResponse mayBeachResponse = new MayBeachResponse();
 
 		Date responseTime;
 
@@ -97,12 +97,15 @@ public class MayBeachDeviceService extends MayBeachService {
 		log.debug("Device Activation Request: {}", requestJson);
 		setAccountIdSignatureHeaderParams(headers, requestJson);
 
-		HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-
-		ResponseEntity<String> response;
 		try{
-			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+			Map<String, Object> activationResponse = graphQLUtility.deviceActivationRequest(cbsDeviceActivationRequest, url);
+			mayBeachResponse.setStatus(HttpStatus.OK.value());
+			mayBeachResponse.setMessage("Success");
+
+			mayBeachResponse.setCode((Integer) activationResponse.get("code"));
+			mayBeachResponse.setMessage((String) activationResponse.get("message"));
 			responseTime = new Date();
+
 		}catch (HttpStatusCodeException ex){
 			responseTime = new Date();
 			mayBeachResponse = handleJsonParseException(ex);
@@ -112,7 +115,6 @@ public class MayBeachDeviceService extends MayBeachService {
 			}
 			return  mayBeachResponse;
 		}
-		mayBeachResponse = objectMapper.convertValue(response.getBody(), MayBeachRequestResponse.class);
 		doPayloadBackup(cbsDeviceActivationRequest.getProviderDeviceIdentifier(), RequestTypeEnum.DEVICE_ACTIVATION.name(), requestTime, responseTime, url, cbsDeviceActivationRequest , mayBeachResponse);
 		return mayBeachResponse;
 	}

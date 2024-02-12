@@ -13,7 +13,7 @@ import lombok.Setter;
 
 
 /**
- * @author nnwachukwu
+ * @author Athanasius
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
