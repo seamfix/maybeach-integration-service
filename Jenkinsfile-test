@@ -55,7 +55,7 @@ pipeline {
             
         stage("deploy") {
                 steps {
-                    build job: 'nimc-test-deploy-spring',
+                    build job: 'nimc-test-deploy-spring-2',
                         parameters: [
                             string(name: 'ENVIRONMENT', value: 'test'),
 							string(name: 'JENKINS_JOB', value: 'nimc-maybeach-integration'),
