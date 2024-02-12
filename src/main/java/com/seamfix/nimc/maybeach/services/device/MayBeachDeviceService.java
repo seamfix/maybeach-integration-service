@@ -7,15 +7,13 @@ import com.seamfix.nimc.maybeach.enums.ResponseCodeEnum;
 import com.seamfix.nimc.maybeach.enums.SettingsEnum;
 import com.seamfix.nimc.maybeach.services.GraphQLUtility;
 import com.seamfix.nimc.maybeach.services.SettingService;
+import com.seamfix.nimc.maybeach.utils.Constants;
 import com.seamfix.nimc.maybeach.utils.EncryptionKeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.seamfix.nimc.maybeach.services.payment.MayBeachService;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -100,7 +98,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		try{
 			Map<String, Object> activationResponse = graphQLUtility.deviceActivationRequest(cbsDeviceActivationRequest, url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
-			mayBeachResponse.setMessage("Success");
+			mayBeachResponse.setMessage(Constants.SUCCESS);
 
 			mayBeachResponse.setCode((Integer) activationResponse.get("code"));
 			mayBeachResponse.setMessage((String) activationResponse.get("message"));
@@ -139,7 +137,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		try{
 			Map<String, Object> certificationResponse = graphQLUtility.deviceCertificationRequest(deviceCertificationRequest.getDeviceId(), url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
-			mayBeachResponse.setMessage("Success");
+			mayBeachResponse.setMessage(Constants.SUCCESS);
 
 			MayBeachClientAppUserData mayBeachClientAppUserData = new MayBeachClientAppUserData();
 			mayBeachClientAppUserData.setEmail((String) certificationResponse.get("code"));
@@ -181,7 +179,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		try{
 			Map<String, Object> certificationResponse = graphQLUtility.fetchActivationData(deviceId, requestId, url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
-			mayBeachResponse.setMessage("Success");
+			mayBeachResponse.setMessage(Constants.SUCCESS);
 
 			MayBeachClientAppUserData mayBeachClientAppUserData = new MayBeachClientAppUserData();
 			mayBeachClientAppUserData.setEmail((String) certificationResponse.get("code"));
@@ -246,7 +244,7 @@ public class MayBeachDeviceService extends MayBeachService {
 			mayBeachClientAppUserData.setLoginId((String) loginResponse.get("id"));
 
 			mayBeachResponse.setData(mayBeachClientAppUserData);
-			buildMayBeachResponse(mayBeachResponse, "Success", HttpStatus.OK.value());
+			buildMayBeachResponse(mayBeachResponse, Constants.SUCCESS, HttpStatus.OK.value());
 					responseTime = new Date();
 		}catch (HttpStatusCodeException ex){
 			log.error("Error calling CBS DeviceUserLoginService", ex);

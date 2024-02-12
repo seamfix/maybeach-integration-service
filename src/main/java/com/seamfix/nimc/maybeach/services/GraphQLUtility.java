@@ -3,7 +3,6 @@ package com.seamfix.nimc.maybeach.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceActivationRequest;
-import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
 import com.seamfix.nimc.maybeach.enums.SettingsEnum;
 import lombok.RequiredArgsConstructor;

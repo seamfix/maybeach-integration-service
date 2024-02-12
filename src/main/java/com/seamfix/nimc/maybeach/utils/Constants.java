@@ -8,5 +8,6 @@ public final class Constants {
 	public static final String X_USER_ID = "X-USER-ID";
 	public static final String SIGNATURE = "SIGNATURE";
 	public static final String AUTHORIZED = "Authorized";
+	public static final String SUCCESS = "Success";
 
 }
