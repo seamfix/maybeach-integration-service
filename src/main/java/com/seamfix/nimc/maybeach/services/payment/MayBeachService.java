@@ -41,8 +41,6 @@ public class MayBeachService {
 	@Autowired
 	protected RestTemplate restTemplate;
 
-	private final static ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
 	@Autowired
 	protected JmsSender jmsSender;
 
@@ -52,7 +50,6 @@ public class MayBeachService {
 	@Autowired
 	private ObjectMapper objectMapper;
 	protected static final String CODE_STR = "code";
-	protected static final String STATUS = "status";
 	protected static final String DATA = "data";
 	protected static final String X_ACCOUNT_ID = "X-ACCOUNT-ID";
 	protected static final String SIGNATURE = "Signature";
@@ -71,10 +68,10 @@ public class MayBeachService {
 		return null;
 	}
 	
-	public static String mapToJsonString(Map<String, Object> inputMap) {
+	public String mapToJsonString(Map<String, Object> inputMap) {
 		String jsonString = "";
         try {
-            jsonString = OBJECT_MAPPER.writeValueAsString(inputMap);
+            jsonString = objectMapper.writeValueAsString(inputMap);
         } catch (IOException e) {
         	log.error("Error converting to Json String ", e);
         }
@@ -82,8 +79,8 @@ public class MayBeachService {
         return jsonString;
 	}
 	
-	public static Object mapToObject(Map<String, String> inputMap, Class clazz) {
-		return OBJECT_MAPPER.convertValue(inputMap, clazz);
+	public Object mapToObject(Map<String, String> inputMap, Class clazz) {
+		return objectMapper.convertValue(inputMap, clazz);
 	}
 	
 	public Map<String, Object> convertObjectToMap (Object object) {

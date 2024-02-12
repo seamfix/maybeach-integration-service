@@ -49,9 +49,6 @@ public class AppConfig {
 	@Value("${nimc.maybeach.fetch.activation.uri}")
 	protected String cbsFetchActivationUri;
 
-	@Value("${nimc.maybeach.uri}")
-	protected String mayBeachUri;
-
 	@Value("${nimc.maybeach.heartbeats.uri}")
 	protected String cbsHeartbeatsUri;
 

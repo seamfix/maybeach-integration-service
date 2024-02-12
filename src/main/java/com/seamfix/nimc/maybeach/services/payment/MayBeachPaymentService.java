@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
 import com.seamfix.nimc.maybeach.dto.CbsPaymentRequest;
 import com.seamfix.nimc.maybeach.dto.CbsPaymentStatusRequest;
 import com.seamfix.nimc.maybeach.dto.CbsPaymentStatusRequestV3;
@@ -20,6 +21,7 @@ import com.seamfix.nimc.maybeach.enums.ResponseCodeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -34,34 +36,36 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class MayBeachPaymentService extends MayBeachService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MayBeachPaymentService.class);
+	@Autowired
+	Gson gson;
 	
 	public CbsResponseData consumePayment(CbsPaymentRequest cbsPaymentRequest) {
 		return (CbsResponseData) callPaymentService(cbsPaymentRequest);
 	}
 	
 	public CbsPaymentStatusResponse getPaymentStatus(String esaCode, String paymentReference, String deviceId) {
-		if(appConfig.isMockPaymentVerificationResponse() || !appConfig.isCbsIntegrationEnabled()) {
+		if(appConfig.isMockPaymentVerificationResponse() || !appConfig.isMayBeachIntegrationEnabled()) {
 			return getMockResponse();
 		}
 		return callPaymentStatus(esaCode, paymentReference, deviceId);
 	}
 	
 	public CbsPaymentStatusResponse getPaymentStatus(CbsPaymentStatusRequest request) {
-		if(appConfig.isMockPaymentVerificationResponse() ||!appConfig.isCbsIntegrationEnabled()) {
+		if(appConfig.isMockPaymentVerificationResponse() ||!appConfig.isMayBeachIntegrationEnabled()) {
 			return getMockResponse();
 		}
 		return callPaymentStatus(request);
 	}
 
 	public MayBeachResponse getPaymentStatusV2(CbsPaymentStatusRequest request) {
-		if(appConfig.isMockPaymentVerificationResponse() ||!appConfig.isCbsIntegrationEnabled()) {
+		if(appConfig.isMockPaymentVerificationResponse() ||!appConfig.isMayBeachIntegrationEnabled()) {
 			return getMockResponse();
 		}
 		return callPaymentStatusV3(request); //call to v3 was done on purpose for legacy support
 	}
 
 	public MayBeachResponse getPaymentStatusV3(CbsPaymentStatusRequest request) {
-		if(appConfig.isMockPaymentVerificationResponse() ||!appConfig.isCbsIntegrationEnabled()) {
+		if(appConfig.isMockPaymentVerificationResponse() ||!appConfig.isMayBeachIntegrationEnabled()) {
 			if (request.getPaymentReference() != null) {
 				request.getPaymentReferences().add(request.getPaymentReference());
 			}

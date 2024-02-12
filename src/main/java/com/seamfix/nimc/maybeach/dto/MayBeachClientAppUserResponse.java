@@ -11,14 +11,15 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MayBeachResponse implements Serializable{
+public class MayBeachClientAppUserResponse extends MayBeachResponse{
 
 	private static final long serialVersionUID = 1898374484684010171L;
 	private int status = -1;
 	private String message = "Error processing MAYBEACH request";
 	private int code = -1;
+	private MayBeachClientAppUserData data;
 
-	public MayBeachResponse(int status, String message) {
+	public MayBeachClientAppUserResponse(int status, String message) {
 		this.status = status;
 		this.message = message;
 	}

@@ -25,43 +25,37 @@ import javax.validation.Valid;
 public class MayBeachDeviceController {
 	
 	@Autowired
-	private MayBeachDeviceService cbsDeviceService;
+	private MayBeachDeviceService mayBeachResponse;
 
 	@PostMapping("/request-activation")
 	public MayBeachResponse deviceActivationRequest(@Valid @RequestBody CbsDeviceActivationRequest cbsDeviceActivationRequest){
-		
-		return cbsDeviceService.sendDeviceActivationRequest(cbsDeviceActivationRequest);
-
+		return mayBeachResponse.sendDeviceActivationRequest(cbsDeviceActivationRequest);
 	}
 
 	@PostMapping("/request-certification")
 	public MayBeachResponse deviceCertificationRequest(@Valid @RequestBody CbsDeviceCertificationRequest deviceCertificationRequest){
 
-		return cbsDeviceService.sendDeviceCertificationRequest(deviceCertificationRequest) ;
+		return mayBeachResponse.sendDeviceCertificationRequest(deviceCertificationRequest) ;
 
 	}
 
 	@GetMapping("/activation-data/{deviceId}/{requestId}")
 	public MayBeachResponse fetchActivationDataRequest(@PathVariable("deviceId") String deviceId, @PathVariable("requestId") String requestId){
 
-		return cbsDeviceService.sendFetchActivationDataRequest(deviceId, requestId) ;
+		return mayBeachResponse.sendFetchActivationDataRequest(deviceId, requestId) ;
 
 	}
 
 	@PostMapping("/login")
 	public MayBeachResponse deviceUserLoginRequest(@Valid @RequestBody CbsDeviceUserLoginRequest userLoginRequest){
 
-		return cbsDeviceService.sendDeviceUserLoginRequest(userLoginRequest) ;
+		return mayBeachResponse.sendDeviceUserLoginRequest(userLoginRequest) ;
 
 	}
 
 	@GetMapping("/ping")
 	public String ping() {
-		return "CBS middleware service is up and running!";
+		return "MayBeach middleware service is up and running!";
 	}
 
-	@PostMapping("/heartbeats")
-	public MayBeachResponse sendHeartBeats(@Valid @RequestBody CbsHeartBeatsRequest heartBeatsRequest){
-		return cbsDeviceService.sendHeartBeats(heartBeatsRequest) ;
-	}
 }
