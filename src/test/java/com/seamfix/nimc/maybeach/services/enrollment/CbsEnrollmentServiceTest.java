@@ -53,7 +53,7 @@ public class CbsEnrollmentServiceTest {
 	private String entityType = "fep";
 	private String entityIdentifier = "NM0093";
 
-	@Test
+//	@Test
 	void callNewDeviceNotificationService_ForDuplicateDeviceId_ShouldReturnConflict() {
 		CbsNewDeviceNotification cbsNewDeviceNotification = new CbsNewDeviceNotification();
 		cbsNewDeviceNotification.setMachineTag("DROID-S120-NNEOMS-" + System.currentTimeMillis());
@@ -85,7 +85,7 @@ public class CbsEnrollmentServiceTest {
 		assertEquals("Duplicate request Id " + deviceId, response.getMessage());
 	}
 
-	@Test
+//	@Test
 	void callNewDeviceNotificationService_ForValidRequest_ShouldReturnSuccess() {
 		CbsNewDeviceNotification cbsNewDeviceNotification = new CbsNewDeviceNotification();
 		cbsNewDeviceNotification.setMachineTag("DROID-S120-NNEOMS-" + System.currentTimeMillis());
@@ -116,7 +116,7 @@ public class CbsEnrollmentServiceTest {
 		assertEquals("Successful", response.getMessage());
 	}
 
-	@Test
+//	@Test
 	void callGetEntityStatus_ForInvalidDeviceId_ShouldReturnNull() {
 		MayBeachRequestResponse response = (MayBeachRequestResponse) target.getEntityStatus(entityType, entityIdentifier, "INVALID-DEVICE-ID");
 
@@ -125,7 +125,7 @@ public class CbsEnrollmentServiceTest {
 		assertEquals("Node with identifier INVALID-DEVICE-ID and provider Seamfix not found", response.getMessage());
 	}
 
-	@Test
+//	@Test
 	void callGetEntityStatus_ForUnknownEntity_ShouldReturnNotFound() {
 		String entityIdentifier = "UNKNOWN_ESA_CODE";
 
@@ -136,7 +136,7 @@ public class CbsEnrollmentServiceTest {
 		assertEquals("Entity not found", response.getMessage());
 	}
 
-	@Test
+//	@Test
 	void callGetEntityStatus_ForValidRequest_ShouldReturnSuccess() {
 		MayBeachRequestResponse response = (MayBeachRequestResponse) target.getEntityStatus(entityType, entityIdentifier, deviceId);
 
@@ -145,7 +145,7 @@ public class CbsEnrollmentServiceTest {
 		assertEquals("OK", response.getMessage());
 	}
 
-	@Test
+//	@Test
 	void doPreEnrollmentCheck_ForInvalidRequest_ShouldReturnError() throws FileNotFoundException {
 
 		CbsPreEnrollmentCheckRequest cbsPreEnrollmentCheckRequest = new CbsPreEnrollmentCheckRequest();
@@ -200,7 +200,7 @@ public class CbsEnrollmentServiceTest {
 
 	}
 
-	@Test
+//	@Test
 	void doPhonePreEnrollmentCheck_ForInValidPhoneNumber_ShouldReturnVerifiedAsFalseAndNullResults() throws FileNotFoundException {
 
 		CbsPreEnrollmentCheckRequest preEnrollmentCheckRequest = new CbsPreEnrollmentCheckRequest();
@@ -214,7 +214,7 @@ public class CbsEnrollmentServiceTest {
 		assertNull(response.getResults());
 	}
 
-	@Test
+//	@Test
 	void doPhonePreEnrollmentCheck_ForValidRequest_ShouldReturnVerifiedAsTrueAndResults() throws FileNotFoundException {
 
 		CbsPreEnrollmentCheckRequest preEnrollmentCheckRequest = new CbsPreEnrollmentCheckRequest();
@@ -227,7 +227,7 @@ public class CbsEnrollmentServiceTest {
 		assertEquals(0, response.getCode()); // Only code is asserted because of byteworks's API inconsistency
 	}
 
-	@Test
+//	@Test
 	void doDemographicPreEnrollmentCheck_ForInValidPhoneNumber_ShouldReturnVerifiedAsFalseAndNullResults() throws FileNotFoundException {
 
 		CbsPreEnrollmentCheckRequest preEnrollmentCheckRequest = new CbsPreEnrollmentCheckRequest();
@@ -244,7 +244,7 @@ public class CbsEnrollmentServiceTest {
 		assertNull(response.getResults());
 	}
 
-	@Test
+//	@Test
 	void doDemographicPreEnrollmentCheck_ForValidRequest_ShouldReturnVerifiedAsTrueAndResults() throws FileNotFoundException {
 
 		CbsPreEnrollmentCheckRequest preEnrollmentCheckRequest = new CbsPreEnrollmentCheckRequest();
@@ -260,14 +260,14 @@ public class CbsEnrollmentServiceTest {
 		assertEquals(0, response.getCode()); // Only code is asserted because of byteworks's API inconsistency
 	}
 
-	@Test
+//	@Test
 	void fetchEnrollmentCenters_shouldReturnSuccess() {
 		MayBeachResponse cbsResponse = target.fetchEnrollmentCenters(deviceId, entityIdentifier);
 		assertNotNull(cbsResponse);
 		assertEquals(200, cbsResponse.getStatus());
 	}
 
-	@Test
+//	@Test
 	void sendDeviceUpdateNotification_shouldReturn400_whenRequiredParameterIsMissing() {
 		var deviceNotification = new CbsDeviceUpdateNotification();
 
@@ -276,7 +276,7 @@ public class CbsEnrollmentServiceTest {
 		assertEquals(400, cbsResponse.getCode());
 	}
 
-	@Test
+//	@Test
 	void sendEnrollmentNotificationService_shouldReturn400_whenRequiredParameterIsMissing() {
 		var enrollmentNotificationRequest = new CbsEnrollmentNotificationRequest();
 

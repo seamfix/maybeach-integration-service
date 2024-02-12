@@ -3,7 +3,6 @@ package com.seamfix.nimc.maybeach.controllers;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceActivationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
-import com.seamfix.nimc.maybeach.dto.CbsHeartBeatsRequest;
 import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.services.device.MayBeachDeviceService;
 import org.springframework.beans.factory.annotation.Autowired;

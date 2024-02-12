@@ -9,7 +9,6 @@ import com.seamfix.nimc.maybeach.services.GraphQLUtility;
 import com.seamfix.nimc.maybeach.services.SettingService;
 import com.seamfix.nimc.maybeach.utils.EncryptionKeyUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,8 +22,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -136,7 +135,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		}
 
 		try{
-			Map<String, Object> certificationResponse = graphQLUtility.deviceActivationRequest(deviceCertificationRequest, url);
+			Map<String, Object> certificationResponse = graphQLUtility.deviceCertificationRequest(deviceCertificationRequest.getDeviceId(), url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
 			mayBeachResponse.setMessage("Success");
 
@@ -219,7 +218,6 @@ public class MayBeachDeviceService extends MayBeachService {
 	}
 
 	public MayBeachClientAppUserResponse callDeviceUserLoginService(CbsDeviceUserLoginRequest userLoginRequest) {
-		Date requestTime = new Date();
 
 		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
 		log.debug("Device User Login Url: {}", url);
@@ -227,6 +225,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		Date responseTime;
 		MayBeachClientAppUserResponse mayBeachResponse = new MayBeachClientAppUserResponse();
 		String validationError = validateRequestParams(userLoginRequest);
+		Date requestTime = new Date();
 		if (validationError != null && !validationError.isEmpty()) {
 			mayBeachResponse = new MayBeachClientAppUserResponse(HttpStatus.BAD_REQUEST.value(), validationError, ResponseCodeEnum.VALIDATION_ERROR.getCode(), null);
 			responseTime = new Date();
@@ -242,7 +241,7 @@ public class MayBeachDeviceService extends MayBeachService {
 			mayBeachClientAppUserData.setEmail((String) loginResponse.get("agentemail"));
 			mayBeachClientAppUserData.setLastname((String) loginResponse.get("agentlastname"));
 			mayBeachClientAppUserData.setFirstname((String) loginResponse.get("agentfirstname"));
-			mayBeachClientAppUserData.setRoles(objectMapper.convertValue(loginResponse.get("permission"), ArrayList.class));
+			mayBeachClientAppUserData.setRoles(objectMapper.convertValue(loginResponse.get("permission"), List.class));
 			mayBeachClientAppUserData.setLoginId((String) loginResponse.get("id"));
 
 			mayBeachResponse.setData(mayBeachClientAppUserData);

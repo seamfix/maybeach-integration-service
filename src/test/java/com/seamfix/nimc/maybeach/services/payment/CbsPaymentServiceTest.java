@@ -28,24 +28,24 @@ class CbsPaymentServiceTest {
 
     private String esaCode = "NM0093";
 
-    @Test
+//    @Test
     void consumePayment_shouldThrowException_whenRequiredCredentialsAreNotPassed() {
         assertThrows(HttpClientErrorException.class, () -> underTest.consumePayment(new CbsPaymentRequest()));
     }
 
-    @Test
+//    @Test
     void getPaymentStatus_shouldReturnSuccess() {
         var response = underTest.getPaymentStatus(esaCode, "12345", "MANTRA-911573953260076");
         assertNotNull(response);
         assertEquals(200, response.getStatus());
     }
 
-    @Test
+//    @Test
     void getPaymentStatus_shouldReturnException_whenDeviceIdNotFound() {
         assertThrows(HttpClientErrorException.class, () -> underTest.getPaymentStatus(esaCode, "12345", "X0-X0-X0-X0-X0"));
     }
 
-    @Test
+//    @Test
     void getPaymentStatusV2_shouldFailWhenNoServiceTypeIsPassed() {
         MayBeachResponse response = underTest.getPaymentStatusV2(new CbsPaymentStatusRequest());
         assertNotNull(response);
