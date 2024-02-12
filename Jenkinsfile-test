@@ -59,7 +59,7 @@ pipeline {
                         parameters: [
                             string(name: 'ENVIRONMENT', value: 'test'),
 							string(name: 'JENKINS_JOB', value: 'nimc-maybeach-integration'),
-                            string(name: 'INSTANCE', value: 'maybeach-integration'),
+                            string(name: 'INSTANCE', value: 'nimc-maybeach-integration'),
                             string(name: 'CURRENT_COMPONENT', value: 'maybeach-integration'),
                             string(name: 'PROJECT', value: 'maybeach-integration'),
                             string(name: 'SERVICE', value: 'maybeach-integration')
