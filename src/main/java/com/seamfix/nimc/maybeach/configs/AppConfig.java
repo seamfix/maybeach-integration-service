@@ -37,54 +37,6 @@ public class AppConfig {
 	@Value("${nimc.maybeach.api.timeout}")
 	private int cbsApiTimeout;
 
-	@Value("${maybeach.microservice.baseurl}")
-	protected String cbsServiceBaseUrl;
-
-	@Value("${nimc.maybeach.device.activation.uri}")
-	protected String cbsDeviceActivationUri;
-
-	@Value("${nimc.maybeach.device.certification.uri}")
-	protected String cbsDeviceCertificationUri;
-
-	@Value("${nimc.maybeach.fetch.activation.uri}")
-	protected String cbsFetchActivationUri;
-
-	@Value("${nimc.maybeach.heartbeats.uri}")
-	protected String cbsHeartbeatsUri;
-
-	@Value("${nimc.maybeach.payment.uri}")
-	protected String cbsPaymentUri;
-
-	@Value("${nimc.maybeach.payment.status.uri}")
-	protected String cbsPaymentStatusUri;
-
-	@Value("${nimc.maybeach.payment.status-v2.uri}")
-	protected String cbsPaymentStatusV2Uri;
-
-	@Value("${nimc.maybeach.enrolment.notification.uri}")
-	protected String cbsEnrolmentNotificationUri;
-
-	@Value("${nimc.maybeach.new.device.notification.uri}")
-	protected String cbsNewDeviceNotificationUri;
-
-	@Value("${nimc.maybeach.device.update.notification.uri}")
-	protected String cbsDeviceUpdateNotificationUri;
-
-	@Value("${nimc.maybeach.fetch.enrolment.centre.uri}")
-	protected String cbsFetchEnrolmentNotificationUri;
-
-	@Value("${nimc.maybeach.entity.status.uri}")
-	protected String cbsEntityStatusUri;
-
-	@Value("${nimc.maybeach.pre-enrolment.check.uri}")
-	protected String cbsPreEnrolmentCheckUri;
-
-	@Value("${nimc.maybeach.phone.pre-enrolment.check.uri}")
-	protected String cbsPhonePreEnrolmentCheckUri;
-
-	@Value("${nimc.maybeach.demographic.pre-enrolment.check.uri}")
-	protected String cbsDemographicPreEnrolmentCheckUri;
-
 	@Value("${skip.authentication.header}")
 	protected boolean skipAuthenticationHeaders;
 

@@ -104,26 +104,6 @@ public class MayBeachService {
 			}
 		}
 		response.setStatus(status);
-		/*
-		 * response.setConsumptionStatus("NOT_USED"); response.setCurrencyCode("NGN");
-		 * response.setCustomerFullName("Test User"); response.setMessage("Successs");
-		 * response.setPaymentProvider("Remita");
-		 * response.setPaymentReference("REM100632343242342");
-		 * 
-		 * List<ServiceTypeResponse> serviceTypes = new ArrayList<>();
-		 * 
-		 * ServiceTypeResponse serviceType = new ServiceTypeResponse();
-		 * serviceType.setAmountInMinorUnit("1500000"); serviceType.setCode("001001");
-		 * serviceType.setName("adult-enrolment");
-		 * 
-		 * serviceTypes.add(serviceType);
-		 * 
-		 * ServiceTypeResponse serviceType2 = new ServiceTypeResponse();
-		 * serviceType2.setAmountInMinorUnit("1000000"); serviceType2.setCode("001002");
-		 * serviceType2.setName("child-enrolment");
-		 * 
-		 * serviceTypes.add(serviceType2); response.setServiceTypes(serviceTypes);
-		 */
 		return response;
 		
 		
