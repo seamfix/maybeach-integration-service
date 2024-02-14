@@ -60,8 +60,7 @@ public class CbsDeviceTest {
         deviceActivationRequest.setRequestId(deviceId);
         deviceActivationRequest.setLocation("LEKKI");
 
-        target.sendDeviceActivationRequest(deviceActivationRequest);
-        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceActivationRequest(deviceActivationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.callOnboardingDeviceRequest(deviceActivationRequest);
 
         assertNotNull(response);
         assertEquals(409, response.getCode());
@@ -86,7 +85,7 @@ public class CbsDeviceTest {
         deviceActivationRequest.setRequestId(deviceId);
         deviceActivationRequest.setLocation("LEKKI");
 
-        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceActivationRequest(deviceActivationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.callOnboardingDeviceRequest(deviceActivationRequest);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());

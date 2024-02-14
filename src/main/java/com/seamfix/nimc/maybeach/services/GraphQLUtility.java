@@ -3,6 +3,7 @@ package com.seamfix.nimc.maybeach.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceActivationRequest;
+import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
 import com.seamfix.nimc.maybeach.enums.SettingsEnum;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -120,17 +123,159 @@ public class GraphQLUtility {
         return response;
     }
 
-    public Map deviceActivationRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
+    public Map deviceActivationRequest(CbsDeviceCertificationRequest deviceCertificationRequest, String url) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        headers = generateMayBeachHeaders(headers);
+        Map<String, Object> payload = new ConcurrentHashMap();
+        payload.put(DEVICE_ID, deviceCertificationRequest.getDeviceId());
+        payload.put("agent_id", deviceCertificationRequest.getRequestedByProviderIdentifier());
+        payload.put("longitude", deviceCertificationRequest.getCurrentLocationLongitude());
+        payload.put("latitude", deviceCertificationRequest.getCurrentLocationLatitude());
+        String mutation = META_DATA +
+                "  deviceActivationRequest"+ MUTATION_REQUEST + " {\n" +
+                "    code\n" +
+                "    message\n" +
+                "  }\n" +
+                "}";
+
+        Map response = new ConcurrentHashMap();
+
+        try {
+            HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, objectMapper.writeValueAsString(payload), headers);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                String responseBody = responseEntity.getBody();
+                response = objectMapper.readValue(responseBody, Map.class);
+            } else {
+                response = extractErrorData(responseEntity, response);
+            }
+        }catch (IOException e){
+            log.error("Exception occurred:: deviceActivationRequest: {}", response);
+        }
+        return response;
+    }
+
+    public Map onboardingDeviceRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        headers = generateMayBeachHeaders(headers);
+        Map<String, Object> payload = new ConcurrentHashMap();
+        payload.put("date", Timestamp.from(Calendar.getInstance().toInstant()));
+        payload.put("type", "mobile");
+        payload.put("model", deviceCertificationRequest.getModel());
+        payload.put("dev_id", deviceCertificationRequest.getProviderDeviceIdentifier());
+        payload.put("partner", deviceCertificationRequest.getEsaCode());
+        payload.put("fep_agent_nin", deviceCertificationRequest.getRequesterNin());
+        payload.put("location", deviceCertificationRequest.getLocation());
+        payload.put("imei", deviceCertificationRequest.getImei());
+        payload.put("machine_tag", deviceCertificationRequest.getMachineTag());
+        payload.put("first_name", deviceCertificationRequest.getRequesterFirstname());
+        payload.put("last_name", deviceCertificationRequest.getRequesterLastname());
+        payload.put("email", deviceCertificationRequest.getRequesterEmail());
+        payload.put("phone_number", deviceCertificationRequest.getRequesterPhoneNumber());
+        payload.put("esa_name", deviceCertificationRequest.getEsaName());
+        payload.put("requestid", deviceCertificationRequest.getRequestId());
+        payload.put("longitude", deviceCertificationRequest.getActivationLocationLongitude());
+        payload.put("latitude", deviceCertificationRequest.getActivationLocationLatitude());
+        String mutation = META_DATA +
+                "  onboardingDeviceRequest"+ MUTATION_REQUEST + " {\n" +
+                "    status\n" +
+                "  }\n" +
+                "}";
+
+        Map response = new ConcurrentHashMap();
+
+        try {
+            HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, objectMapper.writeValueAsString(payload), headers);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                String responseBody = responseEntity.getBody();
+                response = objectMapper.readValue(responseBody, Map.class);
+            } else {
+                response = extractErrorData(responseEntity, response);
+            }
+        }catch (IOException e){
+            log.error("Exception occurred:: deviceActivationRequest: {}", response);
+        }
+        return response;
+    }
+
+    public Map callOnboardingRequestStatus(String deviceId, String url) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        headers = generateMayBeachHeaders(headers);
+        Map<String, Object> payload = new ConcurrentHashMap();
+        payload.put("dev_id", deviceId);
+        String mutation = META_DATA +
+                "  deviceStatus"+ MUTATION_REQUEST + " {\n" +
+                "    status\n" +
+                "    sub_status\n" +
+                "    status_msg\n" +
+                "  }\n" +
+                "}";
+
+        Map response = new ConcurrentHashMap();
+
+        try {
+            HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, objectMapper.writeValueAsString(payload), headers);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                String responseBody = responseEntity.getBody();
+                response = objectMapper.readValue(responseBody, Map.class);
+            } else {
+                response = extractErrorData(responseEntity, response);
+            }
+        }catch (IOException e){
+            log.error("Exception occurred:: deviceActivationRequest: {}", response);
+        }
+        return response;
+    }
+
+    public Map demographicsDataPreEnrolmentVerificationRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
         Map<String, Object> payload = new ConcurrentHashMap();
         payload.put(DEVICE_ID, deviceCertificationRequest.getProviderDeviceIdentifier());
-        payload.put("agent_id", deviceCertificationRequest.getEsaCode());
+        payload.put("date", Timestamp.from(Calendar.getInstance().toInstant()));
+        payload.put("partner", deviceCertificationRequest.getEsaCode());
+        payload.put("fep_agent_nin", deviceCertificationRequest.getRequesterNin());
+        payload.put("machine_tag", deviceCertificationRequest.getMachineTag());
+        payload.put("first_name", deviceCertificationRequest.getRequesterFirstname());
+        payload.put("last_name", deviceCertificationRequest.getRequesterLastname());
+        payload.put("email", deviceCertificationRequest.getRequesterEmail());
+        payload.put("phone_number", deviceCertificationRequest.getRequesterPhoneNumber());
+        payload.put("esa_name", deviceCertificationRequest.getEsaName());
+        payload.put("requestid", deviceCertificationRequest.getRequestId());
         payload.put("longitude", deviceCertificationRequest.getActivationLocationLongitude());
         payload.put("latitude", deviceCertificationRequest.getActivationLocationLatitude());
         String mutation = META_DATA +
-                "  deviceActivationRequest"+ MUTATION_REQUEST + " {\n" +
+                "  demographicsDataPreEnrolmentVerification"+ MUTATION_REQUEST + " {\n" +
                 "    code\n" +
                 "    message\n" +
                 "  }\n" +

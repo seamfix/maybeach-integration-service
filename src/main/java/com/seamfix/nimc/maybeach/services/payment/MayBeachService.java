@@ -13,15 +13,12 @@ import com.google.gson.JsonSyntaxException;
 import com.seamfix.nimc.maybeach.dto.MayBeachRequestResponse;
 import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.services.jms.JmsSender;
-import com.seamfix.nimc.maybeach.utils.Sha512Impl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -89,20 +86,7 @@ public class MayBeachService {
 	
 	protected CbsPaymentStatusResponse getMockResponse(String... rrr) {
 		int status = 0;
-		final List<String> paymentRefs = Arrays.asList(rrr);
 		CbsPaymentStatusResponse response = new CbsPaymentStatusResponse();
-		if (appConfig.isMockPaymentVerificationResponse()) {
-			if (paymentRefs.contains(appConfig.getMockSuccessRRR())) {
-				status = 1;
-				response.setMessage("Success");
-			}else if (paymentRefs.contains(appConfig.getMockOverPaidRRR())) {
-				status = 4;
-				response.setMessage("you overpaid for the service");
-			} else if (paymentRefs.contains(appConfig.getMockServiceNotAvailableRRR())){
-				status = -1;
-				response.setMessage("service not available but you can proceed");
-			}
-		}
 		response.setStatus(status);
 		return response;
 		
@@ -133,28 +117,6 @@ public class MayBeachService {
 		}
 		String[] split = acceptableCodes.split(",");
 		return Arrays.asList(split);
-	}
-
-	protected void setAccountIdDeviceIdSignatureHeaderParams(HttpHeaders headers, String deviceId, String requestJson) {
-		String cbsAccountCode = appConfig.getCbsAccountCode();
-		String cbsApiKey = appConfig.getCbsApiKey();
-		headers.add(X_ACCOUNT_ID, cbsAccountCode);
-		headers.add(X_DEVICE_ID, deviceId);
-		if(requestJson == null){
-			headers.add(SIGNATURE, Sha512Impl.getSHA512(cbsAccountCode + cbsApiKey).toUpperCase());
-		}else {
-			headers.add(SIGNATURE, Sha512Impl.getSHA512(requestJson + cbsAccountCode + cbsApiKey).toUpperCase());
-		}
-	}
-
-	protected void setAccountIdSignatureHeaderParams(MultiValueMap<String, String> headers, String requestJson) {
-		String cbsAccountCode = appConfig.getCbsAccountCode();
-		headers.add(X_ACCOUNT_ID, cbsAccountCode);
-		headers.add(SIGNATURE, Sha512Impl.getSHA512(requestJson + cbsAccountCode + appConfig.getCbsApiKey()).toUpperCase());
-	}
-
-	protected String safeString(String aString) {
-		return aString == null ? "null" : aString;
 	}
 
 	protected MayBeachRequestResponse handleJsonParseException(HttpStatusCodeException exception) {

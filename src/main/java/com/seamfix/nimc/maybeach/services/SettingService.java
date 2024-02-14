@@ -21,10 +21,6 @@ public class SettingService {
         return getSetting(settingsEnum.getName(), settingsEnum.getValue(), settingsEnum.getDescription());
     }
 
-    public String getSettingValue(String settingsName, String defaultValue) {
-
-        return getSetting(settingsName, defaultValue, settingsName);
-    }
 
     private String getSetting(String settingsName, String defaultValue, String description) {
 

@@ -52,5 +52,7 @@ public class CbsDeviceActivationRequest implements Serializable {
 	private String requestId;
 
 	private String location;
+	private String imei;
+	private String model;
 
 }

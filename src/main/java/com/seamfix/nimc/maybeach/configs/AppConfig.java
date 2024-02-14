@@ -19,17 +19,11 @@ import java.time.Duration;
 @RefreshScope
 public class AppConfig {
 
-	@Value("${nimc.maybeach.account.code}")
-	private String cbsAccountCode;
-
 	@Value("${nimc.maybeach.api.key}")
 	private String cbsApiKey;
 
 	@Value("${nimc.maybeach.integration.enabled}")
 	protected boolean mayBeachIntegrationEnabled;
-
-	@Value("${nimc.maybeach.payment.verification.mock.response.enabled}")
-	protected boolean mockPaymentVerificationResponse;
 
 	@Value("${nimc.maybeach.acceptable.codes}")
 	private String cbsAcceptableCodes;

@@ -37,10 +37,11 @@ public class MayBeachDeviceService extends MayBeachService {
 	private SettingService settingsService;
 	@Autowired
 	GraphQLUtility graphQLUtility;
+	private static String code = "code";
 
 	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-	public MayBeachResponse sendDeviceActivationRequest(CbsDeviceActivationRequest cbsDeviceActivationRequest) {
+	public MayBeachResponse sendDeviceActivationRequest(CbsDeviceCertificationRequest cbsDeviceActivationRequest) {
 		if(!appConfig.isMayBeachIntegrationEnabled()) {
 			return getMockResponse();
 		}
@@ -71,7 +72,55 @@ public class MayBeachDeviceService extends MayBeachService {
 		return callDeviceUserLoginService(userLoginRequest);
 	}
 
-	public MayBeachResponse callDeviceActivationService(CbsDeviceActivationRequest cbsDeviceActivationRequest) {
+	public MayBeachResponse callDeviceActivationService(CbsDeviceCertificationRequest cbsDeviceActivationRequest) {
+		Date requestTime = new Date();
+
+		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
+		log.debug("Device Activation Url: {}", url);
+
+		MayBeachResponse mayBeachResponse = new MayBeachResponse();
+
+		Date responseTime;
+
+		String validationError = validateRequestParams(cbsDeviceActivationRequest);
+		if (validationError != null && !validationError.isEmpty()) {
+			mayBeachResponse = new MayBeachResponse(HttpStatus.BAD_REQUEST.value(), validationError, ResponseCodeEnum.VALIDATION_ERROR.getCode());
+			responseTime = new Date();
+			doPayloadBackup(cbsDeviceActivationRequest.getDeviceId(), RequestTypeEnum.DEVICE_ACTIVATION.name(), requestTime, responseTime, url, cbsDeviceActivationRequest , mayBeachResponse);
+			return mayBeachResponse;
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		String requestJson = mapToJsonString(convertObjectToMap(cbsDeviceActivationRequest));
+		log.debug("Device Activation Request: {}", requestJson);
+
+		try{
+			Map<String, Object> activationResponse = graphQLUtility.deviceActivationRequest(cbsDeviceActivationRequest, url);
+			mayBeachResponse.setStatus(HttpStatus.OK.value());
+			mayBeachResponse.setMessage(Constants.SUCCESS);
+
+			mayBeachResponse.setCode((Integer) activationResponse.get(code));
+			mayBeachResponse.setMessage((String) activationResponse.get("message"));
+			responseTime = new Date();
+
+		}catch (HttpStatusCodeException ex){
+			responseTime = new Date();
+			mayBeachResponse = handleJsonParseException(ex);
+			doPayloadBackup(cbsDeviceActivationRequest.getDeviceId(), RequestTypeEnum.DEVICE_ACTIVATION.name(), requestTime, responseTime, url, cbsDeviceActivationRequest , mayBeachResponse);
+			if(!getCodes().contains(String.valueOf(ex.getRawStatusCode()))){
+				mayBeachResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
+			}
+			return  mayBeachResponse;
+		}
+		doPayloadBackup(cbsDeviceActivationRequest.getDeviceId(), RequestTypeEnum.DEVICE_ACTIVATION.name(), requestTime, responseTime, url, cbsDeviceActivationRequest , mayBeachResponse);
+		return mayBeachResponse;
+	}
+
+	public MayBeachResponse callOnboardingDeviceRequest(CbsDeviceActivationRequest cbsDeviceActivationRequest) {
+		if(!appConfig.isMayBeachIntegrationEnabled()) {
+			return getMockResponse();
+		}
 		Date requestTime = new Date();
 
 		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
@@ -93,15 +142,14 @@ public class MayBeachDeviceService extends MayBeachService {
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		String requestJson = mapToJsonString(convertObjectToMap(cbsDeviceActivationRequest));
 		log.debug("Device Activation Request: {}", requestJson);
-		setAccountIdSignatureHeaderParams(headers, requestJson);
 
 		try{
-			Map<String, Object> activationResponse = graphQLUtility.deviceActivationRequest(cbsDeviceActivationRequest, url);
+			Map<String, Object> onboardingDeviceResponse = graphQLUtility.onboardingDeviceRequest(cbsDeviceActivationRequest, url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
 			mayBeachResponse.setMessage(Constants.SUCCESS);
 
-			mayBeachResponse.setCode((Integer) activationResponse.get("code"));
-			mayBeachResponse.setMessage((String) activationResponse.get("message"));
+			mayBeachResponse.setCode((Integer) onboardingDeviceResponse.get(code));
+			mayBeachResponse.setMessage((String) onboardingDeviceResponse.get("status"));
 			responseTime = new Date();
 
 		}catch (HttpStatusCodeException ex){
@@ -114,6 +162,38 @@ public class MayBeachDeviceService extends MayBeachService {
 			return  mayBeachResponse;
 		}
 		doPayloadBackup(cbsDeviceActivationRequest.getProviderDeviceIdentifier(), RequestTypeEnum.DEVICE_ACTIVATION.name(), requestTime, responseTime, url, cbsDeviceActivationRequest , mayBeachResponse);
+		return mayBeachResponse;
+	}
+
+	public MayBeachResponse callOnboardingRequestStatus(String deviceId) {
+		if(!appConfig.isMayBeachIntegrationEnabled()) {
+			return getMockResponse();
+		}
+
+		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
+		log.debug("Device Activation Url: {}", url);
+
+		MayBeachResponse mayBeachResponse = new MayBeachResponse();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		log.debug("callOnboardingRequestStatus: {}", deviceId);
+
+		try{
+			Map<String, Object> onboardingDeviceResponse = graphQLUtility.callOnboardingRequestStatus(deviceId, url);
+			mayBeachResponse.setStatus(HttpStatus.OK.value());
+			mayBeachResponse.setMessage(Constants.SUCCESS);
+
+			mayBeachResponse.setCode((Integer) onboardingDeviceResponse.get(code));
+			mayBeachResponse.setMessage((String) onboardingDeviceResponse.get("status_msg"));
+
+		}catch (HttpStatusCodeException ex){
+			mayBeachResponse = handleJsonParseException(ex);
+			if(!getCodes().contains(String.valueOf(ex.getRawStatusCode()))){
+				mayBeachResponse.setMessage(ResponseCodeEnum.UNABLE_TO_REACH_CBS.getDescription());
+			}
+			return  mayBeachResponse;
+		}
 		return mayBeachResponse;
 	}
 
@@ -140,7 +220,7 @@ public class MayBeachDeviceService extends MayBeachService {
 			mayBeachResponse.setMessage(Constants.SUCCESS);
 
 			MayBeachClientAppUserData mayBeachClientAppUserData = new MayBeachClientAppUserData();
-			mayBeachClientAppUserData.setEmail((String) certificationResponse.get("code"));
+			mayBeachClientAppUserData.setEmail((String) certificationResponse.get(code));
 			mayBeachClientAppUserData.setLastname((String) certificationResponse.get("message"));
 
 			mayBeachResponse.setData(mayBeachClientAppUserData);
