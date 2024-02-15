@@ -165,6 +165,7 @@ public class GraphQLUtility {
     }
 
     public Map onboardingDeviceRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
+        log.info("graphql - onboardingDeviceRequest: {}", deviceCertificationRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         headers = generateMayBeachHeaders(headers);
@@ -186,6 +187,7 @@ public class GraphQLUtility {
         payload.put("requestid", deviceCertificationRequest.getRequestId());
         payload.put("longitude", deviceCertificationRequest.getActivationLocationLongitude());
         payload.put("latitude", deviceCertificationRequest.getActivationLocationLatitude());
+        log.info("graphql - onboardingDeviceRequest after building payload: {}", payload);
         String mutation = META_DATA +
                 "  onboardingDeviceRequest"+ MUTATION_REQUEST + " {\n" +
                 "    status\n" +
@@ -356,7 +358,7 @@ public class GraphQLUtility {
     @NotNull
     private static HttpEntity<Map<String, Object>> buildGraphQLRequest(String mutation, String query, HttpHeaders headers) {
 
-        log.info("buildGraphQLRequest query: {}", query);
+        log.info("buildGraphQLRequest_query: {}", query);
         Map<String, Object> variables = new ConcurrentHashMap<>();
         variables.put("metadata", query);
 

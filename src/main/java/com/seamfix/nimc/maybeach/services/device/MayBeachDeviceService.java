@@ -123,10 +123,9 @@ public class MayBeachDeviceService extends MayBeachService {
 			return getMockResponse();
 		}
 		Date requestTime = new Date();
-		log.info("before calling settings");
 
 		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
-		log.info("Device Activation Url: {}", url);
+		log.info("callOnboardingDeviceRequest url: {}", url);
 
 		MayBeachResponse mayBeachResponse = new MayBeachResponse();
 
@@ -143,7 +142,7 @@ public class MayBeachDeviceService extends MayBeachService {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		String requestJson = mapToJsonString(convertObjectToMap(cbsDeviceActivationRequest));
-		log.info("Device Activation Request: {}", requestJson);
+		log.info("callOnboardingDeviceRequest - requestJson: {}", requestJson);
 
 		try{
 			Map<String, Object> onboardingDeviceResponse = graphQLUtility.onboardingDeviceRequest(cbsDeviceActivationRequest, url);
