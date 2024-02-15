@@ -206,6 +206,7 @@ public class GraphQLUtility {
             log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                log.info("onboardingDeviceRequest is successful");
                 String responseBody = responseEntity.getBody();
                 response = objectMapper.readValue(responseBody, Map.class);
             } else {
@@ -355,6 +356,7 @@ public class GraphQLUtility {
     @NotNull
     private static HttpEntity<Map<String, Object>> buildGraphQLRequest(String mutation, String query, HttpHeaders headers) {
 
+        log.info("buildGraphQLRequest query: {}", query);
         Map<String, Object> variables = new ConcurrentHashMap<>();
         variables.put("metadata", query);
 
@@ -362,6 +364,7 @@ public class GraphQLUtility {
         requestBody.put("query", mutation);
         requestBody.put("variables", variables);
 
+        log.info("buildGraphQLRequest requestBody: {}", requestBody);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
         return requestEntity;
     }
