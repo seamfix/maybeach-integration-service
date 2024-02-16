@@ -28,11 +28,9 @@ public class CbsDeviceActivationRequest implements Serializable {
 	@NotBlank(message = "Please provide the provider device identifier")
 	private String providerDeviceIdentifier;
 
-	@NotBlank(message = "Please provide the activation location latitude")
-	private String activationLocationLatitude;
+	private Double activationLocationLatitude;
 
-	@NotBlank(message = "Please provide the activation location longitude")
-	private String activationLocationLongitude;
+	private Double activationLocationLongitude;
 
 	private String requesterEmail;
 

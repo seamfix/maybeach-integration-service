@@ -149,7 +149,7 @@ public class MayBeachDeviceService extends MayBeachService {
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
 			mayBeachResponse.setMessage(Constants.SUCCESS);
 
-			mayBeachResponse.setCode((Integer) onboardingDeviceResponse.get(code));
+			log.info("callOnboardingDeviceRequest Response :: {}", onboardingDeviceResponse);
 			mayBeachResponse.setMessage((String) onboardingDeviceResponse.get("status"));
 			responseTime = new Date();
 
