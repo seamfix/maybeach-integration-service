@@ -48,8 +48,8 @@ public class CbsDeviceTest {
         deviceActivationRequest.setMachineTag("DROID-S120-NNEOMS-" + System.currentTimeMillis());
         String deviceId = "INFINIX-88888" + System.currentTimeMillis();
         deviceActivationRequest.setProviderDeviceIdentifier(deviceId);
-        deviceActivationRequest.setActivationLocationLongitude("3.47182494");
-        deviceActivationRequest.setActivationLocationLatitude("6.4380415");
+        deviceActivationRequest.setActivationLocationLongitude(3.47182494);
+        deviceActivationRequest.setActivationLocationLatitude(6.4380415);
         deviceActivationRequest.setRequesterLastname("Nwachukwu");
         deviceActivationRequest.setRequesterFirstname("Nneoma");
         deviceActivationRequest.setRequesterEmail("nneoma@yopmail.com");
@@ -73,8 +73,8 @@ public class CbsDeviceTest {
         deviceActivationRequest.setMachineTag("DROID-S120-NNEOMS-" + System.currentTimeMillis());
         String deviceId = "INFINIX-88888" + System.currentTimeMillis();
         deviceActivationRequest.setProviderDeviceIdentifier(deviceId);
-        deviceActivationRequest.setActivationLocationLongitude("3.47182494");
-        deviceActivationRequest.setActivationLocationLatitude("6.4380415");
+        deviceActivationRequest.setActivationLocationLongitude(3.47182494);
+        deviceActivationRequest.setActivationLocationLatitude(6.4380415);
         deviceActivationRequest.setRequesterLastname("Nwachukwu");
         deviceActivationRequest.setRequesterFirstname("Nneoma");
         deviceActivationRequest.setRequesterEmail("nneoma@yopmail.com");

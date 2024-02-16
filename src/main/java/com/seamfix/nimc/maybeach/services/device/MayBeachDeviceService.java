@@ -141,16 +141,19 @@ public class MayBeachDeviceService extends MayBeachService {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		String requestJson = mapToJsonString(convertObjectToMap(cbsDeviceActivationRequest));
-		log.info("callOnboardingDeviceRequest - requestJson: {}", requestJson);
 
 		try{
 			Map<String, Object> onboardingDeviceResponse = graphQLUtility.onboardingDeviceRequest(cbsDeviceActivationRequest, url);
 			mayBeachResponse.setStatus(HttpStatus.OK.value());
-			mayBeachResponse.setMessage(Constants.SUCCESS);
 
 			log.info("callOnboardingDeviceRequest Response :: {}", onboardingDeviceResponse);
-			mayBeachResponse.setMessage((String) onboardingDeviceResponse.get("status"));
+			if(null != onboardingDeviceResponse) {
+				log.info("callOnboardingDeviceRequest Response Status :: {}", onboardingDeviceResponse.get("data"));
+				Map<String, Object> responseObject = objectMapper.convertValue(onboardingDeviceResponse.get("data"), Map.class);
+				List<Map<String, Object>> data = (List<Map<String, Object>>)responseObject.get("onboardingDeviceRequest");
+				mayBeachResponse.setMessage((String) data.get(0).get("status"));
+				log.info("Maybeach response status:: {}", data.get(0).get("status"));
+			}
 			responseTime = new Date();
 
 		}catch (HttpStatusCodeException ex){
