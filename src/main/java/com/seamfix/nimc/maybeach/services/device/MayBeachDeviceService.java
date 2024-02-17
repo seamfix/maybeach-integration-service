@@ -336,10 +336,7 @@ public class MayBeachDeviceService extends MayBeachService {
 	}
 
 	private MayBeachResponse callDeviceUserLoginService(CbsDeviceUserLoginRequest userLoginRequest, Date requestTime, String url) {
-		String validationError = validateRequestParams(userLoginRequest);
-		if (validationError != null && !validationError.isEmpty()) {
-			return processValidationError(userLoginRequest, validationError, requestTime, url);
-		}
+
 		MayBeachClientAppUserResponse mayBeachResponse = new MayBeachClientAppUserResponse();
 		try{
 			Map<String, Object> loginResponse = graphQLUtility.login(userLoginRequest, url);

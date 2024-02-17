@@ -16,9 +16,6 @@ import java.io.Serializable;
 @Setter
 public class CbsDeviceUserLoginRequest implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -5773819000919695219L;
 
     @NotBlank(message = "Please provide the device ID")

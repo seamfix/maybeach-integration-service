@@ -45,10 +45,10 @@ public class GraphQLUtility {
     private final ObjectMapper objectMapper;
 
     public void generateMayBeachHeaders(HttpHeaders headers){
-        log.info("graphql - onboardingDeviceRequest generateMayBeachHeader");
+        log.info("graphql generateMayBeachHeader");
         headers.set(HttpHeaders.AUTHORIZATION, settingsService.getSettingValue(SettingsEnum.MAYBEACH_AUTHORIZATION));
         headers.set(NWP_TOKEN, settingsService.getSettingValue(SettingsEnum.MAYBEACH_TOKEN));
-        log.info("graphql - onboardingDeviceRequest generateMayBeachHeader");
+        log.info("graphql - after generateMayBeachHeader");
     }
 
     public Map<String, Object> login(CbsDeviceUserLoginRequest request, String url) throws IOException {
@@ -84,13 +84,18 @@ public class GraphQLUtility {
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
-                if (null != responseBody && !responseBody.contains("id")){
-                    if(null == response.get("error")){
-                        return new HashMap<>();
-                    }
-                    response.put("error", response.get("error"));
-                }
                 response = objectMapper.readValue(responseBody, Map.class);
+                if (null != responseBody && !responseBody.contains("id")) {
+                    if (!responseBody.contains("message")) {
+                        if (null == response.get("error")) {
+                            return new HashMap<>();
+                        }
+                    }
+                    else {
+                        response.put("error", response.get("message"));
+                    }
+                }
+
             } else {
                 response = extractErrorData(responseEntity, response);
             }
@@ -227,7 +232,6 @@ public class GraphQLUtility {
                     if(null == response.get("error")){
                         return new HashMap<>();
                     }
-                    response.put("error", response.get("error"));
                     return response;
                 }
             } else {
@@ -358,11 +362,8 @@ public class GraphQLUtility {
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
                 response = objectMapper.readValue(responseBody, Map.class);
-                if (!responseBody.contains("message")) {
-                    if(null == response.get("error")){
-                        return new HashMap<>();
-                    }
-                    response.put("error", response.get("error"));
+                if (!responseBody.contains("message") && null == response.get("error")){
+                    return new HashMap<>();
                 }
             } else {
                 response = extractErrorData(responseEntity, response);
