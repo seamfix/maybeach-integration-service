@@ -19,9 +19,6 @@ import java.time.Duration;
 @RefreshScope
 public class AppConfig {
 
-	@Value("${nimc.maybeach.api.key}")
-	private String cbsApiKey;
-
 	@Value("${nimc.maybeach.integration.enabled}")
 	protected boolean mayBeachIntegrationEnabled;
 

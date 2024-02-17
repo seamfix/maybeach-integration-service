@@ -80,12 +80,15 @@ public class GraphQLUtility {
                     String.class
             );
 
-            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+            log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
                 if (null != responseBody && !responseBody.contains("id")){
-                    return new HashMap<>();
+                    if(null == response.get("error")){
+                        return new HashMap<>();
+                    }
+                    response.put("error", response.get("error"));
                 }
                 response = objectMapper.readValue(responseBody, Map.class);
             } else {
@@ -122,12 +125,15 @@ public class GraphQLUtility {
                 String.class
         );
 
-        log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+        log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
             if(!responseBody.contains("id")){
-                return new HashMap<>();
+                if(null == response.get("error")){
+                    return new HashMap<>();
+                }
+                response.put("error", response.get("error"));
             }
             response = objectMapper.readValue(responseBody, Map.class);
         }
@@ -164,12 +170,15 @@ public class GraphQLUtility {
                     String.class
             );
 
-            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+            log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
                 if(!responseBody.contains("code")){
-                    return new HashMap<>();
+                    if(null == response.get("error")){
+                        return new HashMap<>();
+                    }
+                    response.put("error", response.get("error"));
                 }
                 response = objectMapper.readValue(responseBody, Map.class);
             } else {
@@ -208,15 +217,19 @@ public class GraphQLUtility {
                     String.class
             );
 
-            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+            log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
+                response = objectMapper.readValue(responseBody, Map.class);
                 if (!responseBody.contains("status")) {
                     Utility.logError("onboardingDeviceRequest Response error:: {}", responseEntity.getBody());
-                    return new HashMap<>();
+                    if(null == response.get("error")){
+                        return new HashMap<>();
+                    }
+                    response.put("error", response.get("error"));
+                    return response;
                 }
-                response = objectMapper.readValue(responseBody, Map.class);
             } else {
                 response = extractErrorData(responseEntity, response);
             }
@@ -282,14 +295,18 @@ public class GraphQLUtility {
                     String.class
             );
 
-            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+            log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                log.info("Got here 1");
                 String responseBody = responseEntity.getBody();
-                if(!responseBody.contains("status")){
-                    return new HashMap();
-                }
                 response = objectMapper.readValue(responseBody, Map.class);
+                if(!responseBody.contains("status")){
+                    log.info("Got here 2");
+                    response.put("status", response.get("error"));
+                    return response;
+                }
+                log.info("Got here 3");
             } else {
                 response = extractErrorData(responseEntity, response);
             }
@@ -336,14 +353,17 @@ public class GraphQLUtility {
                     String.class
             );
 
-            log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+            log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
-                if (!responseBody.contains("message")) {
-                    return new HashMap<>();
-                }
                 response = objectMapper.readValue(responseBody, Map.class);
+                if (!responseBody.contains("message")) {
+                    if(null == response.get("error")){
+                        return new HashMap<>();
+                    }
+                    response.put("error", response.get("error"));
+                }
             } else {
                 response = extractErrorData(responseEntity, response);
             }
@@ -364,9 +384,7 @@ public class GraphQLUtility {
 
         String mutation = META_DATA +
                 "  fetchActivationData(input:  " + convertToJsonString(payload) + " ) {\n"+
-                "    id\n" +
-                "    code\n" +
-                "    message\n" +
+                "    data\n" +
                 "  }\n" +
                 "}";
 
@@ -379,12 +397,15 @@ public class GraphQLUtility {
                 String.class
         );
 
-        log.info(RESPONSE_FROM_MAY_BEACH, requestEntity);
+        log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
             if(null != responseBody && !responseBody.contains("message")){
-                return new HashMap<>();
+                if(null == response.get("error")){
+                    return new HashMap<>();
+                }
+                response.put("error", response.get("error"));
             }
             response = objectMapper.readValue(responseBody, Map.class);
         }

@@ -24,17 +24,17 @@ public class MayBeachDeviceController {
 
 	@PostMapping("/request-activation")
 	public MayBeachResponse deviceActivationRequest(@RequestBody CbsDeviceActivationRequest cbsDeviceActivationRequest){
-		return mayBeachResponse.callOnboardingDeviceRequest(cbsDeviceActivationRequest);
+		return mayBeachResponse.sendDeviceOnboardingRequest(cbsDeviceActivationRequest);
 	}
 
-	@PostMapping("/onboarding-request-status/{deviceId}")
+	@GetMapping("/onboarding-request-status/{deviceId}")
 	public MayBeachResponse onboardingRequestStatus(@PathVariable("deviceId") String deviceId){
-		return mayBeachResponse.callOnboardingRequestStatus(deviceId);
+		return mayBeachResponse.sendDeviceOnboardingRequestStatus(deviceId);
 	}
 
 	@PostMapping("/request-certification")
 	public MayBeachResponse deviceCertificationRequest(@Valid @RequestBody CbsDeviceCertificationRequest deviceCertificationRequest){
-		return mayBeachResponse.sendDeviceCertificationRequest(deviceCertificationRequest) ;
+		return mayBeachResponse.sendDeviceActivationRequest(deviceCertificationRequest) ;
 	}
 
 	@GetMapping("/activation-data/{deviceId}/{requestId}")

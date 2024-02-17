@@ -16,6 +16,7 @@ public class MayBeachResponse implements Serializable{
 	private static final long serialVersionUID = 1898374484684010171L;
 	private int status;
 	private String message;
+	private Object data;
 	private int code;
 
 	public MayBeachResponse(int status, String message) {

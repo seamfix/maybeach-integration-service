@@ -17,7 +17,6 @@ public class CbsDeviceCertificationRequest implements Serializable {
     @NotBlank(message = "Please provide the device ID")
     private String deviceId;
 
-    @NotBlank(message = "Please provide the certifier login ID")
     private String certifierLoginId;
 
     private String requestedByLastName;

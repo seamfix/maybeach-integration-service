@@ -9,9 +9,8 @@ import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.dto.DeviceActivationDataPojo;
 import com.seamfix.nimc.maybeach.services.jms.JmsSender;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,15 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 public class CbsDeviceTest {
 
-    @Autowired
+    @Mock
     private MayBeachDeviceService target;
 
-    @Autowired
+    @Mock
     private RestTemplate restTemplate;
 
+    @Mock
     private JmsSender jmsSender;
 
-    @Autowired
+    @Mock
     private AppConfig appConfig;
 
 
@@ -60,7 +60,7 @@ public class CbsDeviceTest {
         deviceActivationRequest.setRequestId(deviceId);
         deviceActivationRequest.setLocation("LEKKI");
 
-        MayBeachRequestResponse response = (MayBeachRequestResponse) target.callOnboardingDeviceRequest(deviceActivationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceOnboardingRequest(deviceActivationRequest);
 
         assertNotNull(response);
         assertEquals(409, response.getCode());
@@ -85,7 +85,7 @@ public class CbsDeviceTest {
         deviceActivationRequest.setRequestId(deviceId);
         deviceActivationRequest.setLocation("LEKKI");
 
-        MayBeachRequestResponse response = (MayBeachRequestResponse) target.callOnboardingDeviceRequest(deviceActivationRequest);
+        MayBeachRequestResponse response = (MayBeachRequestResponse) target.sendDeviceOnboardingRequest(deviceActivationRequest);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());
