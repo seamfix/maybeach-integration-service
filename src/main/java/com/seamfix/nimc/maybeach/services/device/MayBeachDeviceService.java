@@ -94,10 +94,6 @@ public class MayBeachDeviceService extends MayBeachService {
 				case DEVICE_USER_LOGIN -> callDeviceUserLoginService((CbsDeviceUserLoginRequest) request, requestTime, url);
 				case DEVICE_ONBOARDING -> callOnboardingDeviceRequest((CbsDeviceActivationRequest) request, requestTime, url);
 				case DEVICE_ONBOARDING_STATUS -> callOnboardingRequestStatus((String) request, requestTime, url);
-				default -> {
-					log.warn("Unsupported request type: {}", requestType);
-					yield getMockResponse();
-				}
 			};
 		} catch (Exception ex) {
 			log.error("Error handling {} request", requestType.name(), ex);
@@ -328,7 +324,7 @@ public class MayBeachDeviceService extends MayBeachService {
 			token = token.substring(token.length() - 16);
 
 			DeviceActivationResultPojo decryptedData = gson.fromJson(EncryptionKeyUtil.decryptData(encryptedData, token), DeviceActivationResultPojo.class);
-			mayBeachResponse.setData(decryptedData);
+			mayBeachResponse.setData(null != decryptedData?decryptedData.getResult():null);
 		}
 
 		doPayloadBackup(request.getDeviceId(), RequestTypeEnum.FETCH_ACTIVATION_DATA.name(), requestTime, responseTime, url, request.getRequestId() , mayBeachResponse);

@@ -10,6 +10,6 @@ public final class Constants {
 	public static final String AUTHORIZED = "Authorized";
 	public static final String SUCCESS = "Success";
 	public static final int MAYBEACH_ERROR_CODE = 1;
-	public static final int MAYBEACH_SUCCESS_CODE = 0;
+	public static final int MAYBEACH_SUCCESS_CODE = 200;
 
 }
