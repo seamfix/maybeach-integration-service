@@ -22,6 +22,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -347,7 +348,16 @@ public class MayBeachDeviceService extends MayBeachService {
 				log.info("callDeviceUserLoginService Response Status :: {}", loginResponse.get(DATA));
 				Map<String, Object> responseObject = objectMapper.convertValue(loginResponse.get(DATA), Map.class);
 				List<Map<String, Object>> data = (List<Map<String, Object>>)responseObject.get("deviceUserLogin");
-				buildMayBeachResponse(mayBeachResponse, (String) data.get(0).get("permission"), Constants.MAYBEACH_SUCCESS_CODE, data.get(0));
+
+				CbsClientAppUserData cbsClientAppUserData = new CbsClientAppUserData((String) data.get(0).get("id"), (String) data.get(0).get("agentfirstname"),
+						(String) data.get(0).get("agentlastname"), (String) data.get(0).get("agentemail"), (List<String>) data.get(0).get("permission"));
+
+				Map<String, Object> cbsResponseData = new HashMap<>();
+				cbsResponseData.put("CbsClientAppUserData", cbsClientAppUserData);
+				cbsResponseData.put("failedLoginAttempt", 0);
+
+				buildMayBeachResponse(mayBeachResponse, Constants.SUCCESS, Constants.MAYBEACH_SUCCESS_CODE, cbsResponseData);
+				return mayBeachResponse;
 			}
 			buildMayBeachResponse(mayBeachResponse, Constants.SUCCESS, Constants.MAYBEACH_SUCCESS_CODE, null);
 		}catch (HttpStatusCodeException ex){
