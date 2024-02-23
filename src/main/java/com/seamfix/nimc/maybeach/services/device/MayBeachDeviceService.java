@@ -34,6 +34,8 @@ public class MayBeachDeviceService extends MayBeachService {
 	private static final String MAYBEACH_RESPONSE_STATUS = "Maybeach response status:: {}";
 	private static final String MESSAGE = "message";
 	private static final String ERROR = "error";
+	@Autowired
+	MayBeachDeviceMock mayBeachDeviceMock;
 
 	@Autowired
 	private AppConfig appConfig;
@@ -79,8 +81,8 @@ public class MayBeachDeviceService extends MayBeachService {
 	}
 
 	private MayBeachResponse handleRequest(Object request, RequestTypeEnum requestType) {
-		if (!appConfig.isMayBeachIntegrationEnabled()) {
-			return getMockResponse();
+		if (!Boolean.parseBoolean(settingsService.getSettingValue(SettingsEnum.MOCK_MAYBEACH))) {
+			return mayBeachDeviceMock.handleRequest(requestType);
 		}
 		Date requestTime = new Date();
 		String url = settingsService.getSettingValue(SettingsEnum.MAYBEACH_URL);
@@ -217,8 +219,8 @@ public class MayBeachDeviceService extends MayBeachService {
 				List<Map<String, Object>> data = (List<Map<String, Object>>)responseObject.get("deviceActivationRequest");
 				mayBeachResponse.setMessage((String) data.get(0).get(MESSAGE));
 				mayBeachResponse.setCode(Constants.MAYBEACH_SUCCESS_CODE);
-				log.info(MAYBEACH_RESPONSE_STATUS, data.get(0));
 				mayBeachResponse.setData(data.get(0));
+				log.info(MAYBEACH_RESPONSE_STATUS, data.get(0));
 			}
 
 		}catch (HttpStatusCodeException ex){
@@ -322,10 +324,10 @@ public class MayBeachDeviceService extends MayBeachService {
 		if(mayBeachResponse.getCode() == HttpStatus.OK.value()) {
 			String encryptedData = (String) mayBeachResponse.getData();
 			String token = settingsService.getSettingValue(SettingsEnum.MAYBEACH_TOKEN);
-			token = token.substring(token.length() - 16);
+			token = token.substring(Math.max(token.length() - 16, 0));
 
 			DeviceActivationResultPojo decryptedData = gson.fromJson(EncryptionKeyUtil.decryptData(encryptedData, token), DeviceActivationResultPojo.class);
-			mayBeachResponse.setData(null != decryptedData?decryptedData.getResult():null);
+			buildMayBeachResponse(mayBeachResponse, Constants.SUCCESS, Constants.MAYBEACH_SUCCESS_CODE, null != decryptedData?decryptedData.getResult():null);
 		}
 
 		doPayloadBackup(request.getDeviceId(), RequestTypeEnum.FETCH_ACTIVATION_DATA.name(), requestTime, responseTime, url, request.getRequestId() , mayBeachResponse);
