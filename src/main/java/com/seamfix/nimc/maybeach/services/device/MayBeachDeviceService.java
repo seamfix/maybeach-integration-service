@@ -81,7 +81,7 @@ public class MayBeachDeviceService extends MayBeachService {
 	}
 
 	private MayBeachResponse handleRequest(Object request, RequestTypeEnum requestType) {
-		if (!Boolean.parseBoolean(settingsService.getSettingValue(SettingsEnum.MOCK_MAYBEACH))) {
+		if (Boolean.parseBoolean(settingsService.getSettingValue(SettingsEnum.MOCK_MAYBEACH))) {
 			return mayBeachDeviceMock.handleRequest(requestType);
 		}
 		Date requestTime = new Date();
