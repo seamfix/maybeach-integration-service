@@ -118,9 +118,6 @@ public class MayBeachDeviceMock extends MayBeachService {
 
 		DeviceActivationResultPojo decryptedData = gson.fromJson(EncryptionKeyUtil.decryptData(encryptedData, token), DeviceActivationResultPojo.class);
 		buildMayBeachResponse(mayBeachResponse, Constants.SUCCESS, Constants.MAYBEACH_SUCCESS_CODE, null != decryptedData?decryptedData.getResult():null);
-
-
-		mayBeachResponse.setMessage("Fetched successfully");
 		return mayBeachResponse;
 	}
 
