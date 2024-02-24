@@ -16,15 +16,13 @@ public class MayBeachClientAppUserResponse extends MayBeachResponse{
 	private int status;
 	private String message;
 	private int code;
-	private MayBeachClientAppUserData data;
-
-	public MayBeachClientAppUserResponse(int status, String message) {
-		this.status = status;
-		this.message = message;
-	}
 
 	@Override
 	public String getMessage() {
 		return message == null? "Error processing MAYBEACH request": message;
+	}
+
+	public MayBeachClientAppUserResponse(int status, String message, int code, Object data) {
+		super(status, message, data, code);
 	}
 }
