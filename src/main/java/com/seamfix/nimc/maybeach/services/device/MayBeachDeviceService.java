@@ -355,7 +355,7 @@ public class MayBeachDeviceService extends MayBeachService {
 						(String) data.get(0).get("agentlastname"), (String) data.get(0).get("agentemail"), (List<String>) data.get(0).get("permission"));
 
 				Map<String, Object> cbsResponseData = new HashMap<>();
-				cbsResponseData.put("CbsClientAppUserData", cbsClientAppUserData);
+				cbsResponseData.put("clientAppUser", cbsClientAppUserData);
 				cbsResponseData.put("failedLoginAttempt", 0);
 
 				buildMayBeachResponse(mayBeachResponse, Constants.SUCCESS, Constants.MAYBEACH_SUCCESS_CODE, cbsResponseData);

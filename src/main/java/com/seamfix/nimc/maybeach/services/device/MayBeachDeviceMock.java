@@ -130,7 +130,7 @@ public class MayBeachDeviceMock extends MayBeachService {
 				"Lawrence", "lathanasius@a.com", new ArrayList<>(){{ add("enrollment_admin");}});
 
 		Map<String, Object> cbsResponseData = new HashMap<>();
-		cbsResponseData.put("CbsClientAppUserData", cbsClientAppUserData);
+		cbsResponseData.put("clientAppUser", cbsClientAppUserData);
 		cbsResponseData.put("failedLoginAttempt", 0);
 
 		buildMayBeachResponse(mayBeachResponse, Constants.SUCCESS, Constants.MAYBEACH_SUCCESS_CODE, cbsResponseData);

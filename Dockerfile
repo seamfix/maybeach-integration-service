@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:17-jdk-slim
 
 ENV MAVEN_VERSION=3.3.9
 #ENV APP_HOME=/usr/app
