@@ -43,7 +43,7 @@ public class PaymentStatusFilter extends OncePerRequestFilter {
 
     private final Set<String> nonValidatedUrls = new HashSet<>(Arrays.asList(
             "/device/request-activation", "/device/activation-data/{deviceId}/{requestId}",
-            "/actuator/**", "/enrollment/entity/status/{entityType}/{entityIdentifier}/{deviceId}"
+            "/actuator/**"
     ));
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
