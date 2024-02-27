@@ -5,6 +5,7 @@ import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
 import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
 import com.seamfix.nimc.maybeach.dto.MayBeachResponse;
 import com.seamfix.nimc.maybeach.services.device.MayBeachDeviceService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
+@Slf4j
 @RequestMapping("/device")
 public class MayBeachDeviceController {
 	
@@ -33,7 +35,7 @@ public class MayBeachDeviceController {
 	}
 
 	@PostMapping("/request-certification")
-	public MayBeachResponse deviceCertificationRequest(@Valid @RequestBody CbsDeviceCertificationRequest deviceCertificationRequest){
+	public MayBeachResponse deviceCertificationRequest(@RequestBody CbsDeviceCertificationRequest deviceCertificationRequest){
 		return mayBeachResponse.sendDeviceActivationRequest(deviceCertificationRequest) ;
 	}
 
@@ -43,7 +45,8 @@ public class MayBeachDeviceController {
 	}
 
 	@PostMapping("/login")
-	public MayBeachResponse deviceUserLoginRequest(@Valid @RequestBody CbsDeviceUserLoginRequest userLoginRequest){
+	public MayBeachResponse deviceUserLoginRequest(@RequestBody CbsDeviceUserLoginRequest userLoginRequest){
+		log.info("deviceUserLoginRequest: {}", userLoginRequest);
 		return mayBeachResponse.sendDeviceUserLoginRequest(userLoginRequest) ;
 	}
 
