@@ -8,7 +8,7 @@ package com.seamfix.nimc.maybeach.enums;
 @SuppressWarnings("PMD")
 public enum SettingsEnum {
 
-    MAYBEACH_URL("MAYBEACH-URL", "https://graph.maybeachtech.com.ng/graphql", "Maybeach url for production"),
+    MAYBEACH_URL("MAYBEACH-URL", "http://172.29.1.16:8122/graphql", "Maybeach url for production"),
     MAYBEACH_AUTHORIZATION("MAYBEACH-AUTHORIZATION", "Basic ZHI5cGhpbDAwNzpjaGlHSVJMPTEyeDU=", "Maybeach authorization token for production"),
     MAYBEACH_TOKEN("MAYBEACH-TOKEN", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiYXBpOXUzNDUzNzgzODIxMTUxMzk5NjQ1IiwiYXBwbGljYXRpb25fa2V5IjoiOXUzNDUzNzgzODIxNzM4NDIyOTM5IiwiZXhwaXJhdGlvbiI6MTc5NDM5Mjc2MH0.bB9qfXsxCDfNyXVPxYq0NpaPucE_w0TxwOU4pZ8-FuI", "Maybeach token for production"),
     MOCK_MAYBEACH("MOCK-MAYBEACH", "false", "Mock maybeach calls");
