@@ -246,15 +246,22 @@ public class GraphQLUtility {
 
     private static Map<String, Object> getOnboardingObjectMap(CbsDeviceActivationRequest deviceCertificationRequest) {
         Map<String, Object> payload = new ConcurrentHashMap<>();
+        if(deviceCertificationRequest.getProviderDeviceIdentifier().contains("-")){
+            String[] splitDeviceId = deviceCertificationRequest.getProviderDeviceIdentifier().split("-");
+            payload.put("imei", splitDeviceId[1]);
+            payload.put("model", splitDeviceId[0]);
+        }
+        else {
+            payload.put("imei", deviceCertificationRequest.getImei());
+            payload.put("model", deviceCertificationRequest.getModel());
+        }
         payload.put("date", getCurrentTimestamp());
         payload.put("type", "mobile");
-        payload.put("model", deviceCertificationRequest.getModel());
         payload.put("dev_id", deviceCertificationRequest.getProviderDeviceIdentifier());
         payload.put("partner", deviceCertificationRequest.getEsaCode());
         payload.put("fep_agent_nin", deviceCertificationRequest.getRequesterNin());
         payload.put("location", deviceCertificationRequest.getLocation());
 
-        payload.put("imei", deviceCertificationRequest.getImei());
         payload.put("machine_tag", deviceCertificationRequest.getMachineTag());
         payload.put("first_name", deviceCertificationRequest.getRequesterFirstname());
         payload.put("last_name", deviceCertificationRequest.getRequesterLastname());
