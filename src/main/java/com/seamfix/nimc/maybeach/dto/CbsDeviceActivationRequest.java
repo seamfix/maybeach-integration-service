@@ -2,7 +2,6 @@ package com.seamfix.nimc.maybeach.dto;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -25,7 +24,6 @@ public class CbsDeviceActivationRequest implements Serializable {
 
 	private String machineTag;
 
-	@NotBlank(message = "Please provide the provider device identifier")
 	private String providerDeviceIdentifier;
 
 	private Double activationLocationLatitude;
@@ -42,7 +40,6 @@ public class CbsDeviceActivationRequest implements Serializable {
 
 	private String requesterNin;
 
-	@NotBlank(message = "Please provide the ESA code")
 	private String esaCode;
 
 	private String esaName;
