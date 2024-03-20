@@ -60,7 +60,7 @@ public class MayBeachDeviceMock extends MayBeachService {
 	private MayBeachResponse callOnboardingDeviceRequest(String url) {
 		log.info("callOnboardingDeviceRequest url: {}", url);
 
-		MayBeachResponse mayBeachResponse = new MayBeachResponse();
+		MayBeachRequestResponse mayBeachResponse = new MayBeachRequestResponse();
 		mayBeachResponse.setStatus(HttpStatus.OK.value());
 
 		mayBeachResponse.setMessage("draft");
@@ -74,7 +74,7 @@ public class MayBeachDeviceMock extends MayBeachService {
 	private MayBeachResponse callOnboardingRequestStatus(String url) {
 		log.info("callOnboardingDeviceRequest url: {}", url);
 
-		MayBeachResponse mayBeachResponse = new MayBeachResponse();
+		MayBeachRequestResponse mayBeachResponse = new MayBeachRequestResponse();
 		mayBeachResponse.setStatus(HttpStatus.OK.value());
 
 		mayBeachResponse.setMessage("draft");

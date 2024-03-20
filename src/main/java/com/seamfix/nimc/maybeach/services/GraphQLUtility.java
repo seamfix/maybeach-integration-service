@@ -2,9 +2,7 @@ package com.seamfix.nimc.maybeach.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.seamfix.nimc.maybeach.dto.CbsDeviceActivationRequest;
-import com.seamfix.nimc.maybeach.dto.CbsDeviceCertificationRequest;
-import com.seamfix.nimc.maybeach.dto.CbsDeviceUserLoginRequest;
+import com.seamfix.nimc.maybeach.dto.*;
 import com.seamfix.nimc.maybeach.enums.SettingsEnum;
 import com.seamfix.nimc.maybeach.utils.Utility;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +47,7 @@ public class GraphQLUtility {
         log.info("graphql - after generateMayBeachHeader");
     }
 
-    public Map<String, Object> login(CbsDeviceUserLoginRequest request, String url) throws IOException {
+    public MaybeachLoginResponse login(CbsDeviceUserLoginRequest request, String url) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         generateMayBeachHeaders(headers);
@@ -60,6 +56,7 @@ public class GraphQLUtility {
         payload.put("username", request.getLoginId());
         payload.put("password", request.getPassword());
 
+        MaybeachLoginResponse response = new MaybeachLoginResponse();
         try {
             String payloadJSon = convertToJsonString(payload);
             String mutation = META_DATA +
@@ -68,10 +65,10 @@ public class GraphQLUtility {
                     "    agentfirstname\n" +
                     "    agentlastname\n" +
                     "    agentemail\n" +
+                    "    permission\n" +
                     "  }\n" +
                     "}";
 
-            Map<String, Object> response = new ConcurrentHashMap<>();
             HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, headers);
             ResponseEntity<String> responseEntity = restTemplate.exchange(
                     url,
@@ -84,34 +81,34 @@ public class GraphQLUtility {
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
-                response = objectMapper.readValue(responseBody, Map.class);
+                response = objectMapper.readValue(responseBody, MaybeachLoginResponse.class);
                 if (null != responseBody && !responseBody.contains("id")) {
                     if (!responseBody.contains("message")) {
-                        if (null == response.get("error")) {
-                            return new HashMap<>();
+                        if (null == response.getError()) {
+                            return response;
                         }
                     }
                     else {
-                        response.put("error", response.get("message"));
+                        response.setError(response.getMessage());
                     }
                 }
 
             } else {
-                response = extractErrorData(responseEntity, response);
+                response = (MaybeachLoginResponse) extractErrorDataFetch(responseEntity, MaybeachLoginResponse.class);
             }
             return response;
         }
         catch (JsonProcessingException e){
             log.error("Exception caught while processing request");
         }
-        return new HashMap<>();
+        return response;
     }
 
     public Map<String, Object> deviceCertificationRequest(String deviceId, String url) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         generateMayBeachHeaders(headers);
-        Map<String, Object> payload = new ConcurrentHashMap();
+        Map<String, Object> payload = new ConcurrentHashMap<>();
         payload.put(DEVICE_ID, deviceId);
         String mutation = META_DATA +
                 "  deviceCertificationRequest(input:  " + convertToJsonString(payload) + " ) {\n" +
@@ -134,13 +131,13 @@ public class GraphQLUtility {
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
-            if(!responseBody.contains("id")){
+            response = objectMapper.readValue(responseBody, Map.class);
+            if(null != responseBody && !responseBody.contains("id")){
                 if(null == response.get("error")){
                     return new HashMap<>();
                 }
                 response.put("error", response.get("error"));
             }
-            response = objectMapper.readValue(responseBody, Map.class);
         }
         else {
             response = extractErrorData(responseEntity, response);
@@ -148,11 +145,11 @@ public class GraphQLUtility {
         return response;
     }
 
-    public Map deviceActivationRequest(CbsDeviceCertificationRequest deviceCertificationRequest, String url) {
+    public Map<String, Object> deviceActivationRequest(CbsDeviceCertificationRequest deviceCertificationRequest, String url) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         generateMayBeachHeaders(headers);
-        Map<String, Object> payload = new ConcurrentHashMap();
+        Map<String, Object> payload = new ConcurrentHashMap<>();
         payload.put(DEVICE_ID, deviceCertificationRequest.getDeviceId());
         payload.put("agent_id", deviceCertificationRequest.getRequestedByProviderIdentifier());
         payload.put("longitude", deviceCertificationRequest.getCurrentLocationLongitude());
@@ -165,7 +162,7 @@ public class GraphQLUtility {
                 "  }\n" +
                 "}";
 
-        Map response = new ConcurrentHashMap();
+        Map<String, Object> response = new ConcurrentHashMap<>();
 
             HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, headers);
             ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -179,13 +176,13 @@ public class GraphQLUtility {
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
-                if(!responseBody.contains("code")){
+                response = objectMapper.readValue(responseBody, Map.class);
+                if(null != responseBody && !responseBody.contains("code")){
                     if(null == response.get("error")){
                         return new HashMap<>();
                     }
                     response.put("error", response.get("error"));
                 }
-                response = objectMapper.readValue(responseBody, Map.class);
             } else {
                 response = extractErrorData(responseEntity, response);
             }
@@ -196,13 +193,14 @@ public class GraphQLUtility {
         return new HashMap<>();
     }
 
-    public Map onboardingDeviceRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
+    public MaybeachDeviceActivationResponse onboardingDeviceRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
         log.info("graphql - onboardingDeviceRequest: {}", deviceCertificationRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         generateMayBeachHeaders(headers);
         Map<String, Object> payload = getOnboardingObjectMap(deviceCertificationRequest);
 
+        MaybeachDeviceActivationResponse response = new MaybeachDeviceActivationResponse();
         try {
             String payloadJSon = convertToJsonString(payload);
 
@@ -212,7 +210,6 @@ public class GraphQLUtility {
                     "  }\n" +
                     "}";
 
-            Map response = new ConcurrentHashMap();
 
             HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, headers);
             ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -226,22 +223,19 @@ public class GraphQLUtility {
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 String responseBody = responseEntity.getBody();
-                response = objectMapper.readValue(responseBody, Map.class);
+                response = objectMapper.readValue(responseBody, MaybeachDeviceActivationResponse.class);
                 if (!responseBody.contains("status")) {
                     Utility.logError("onboardingDeviceRequest Response error:: {}", responseEntity.getBody());
-                    if(null == response.get("error")){
-                        return new HashMap<>();
-                    }
                     return response;
                 }
             } else {
-                response = extractErrorData(responseEntity, response);
+                response = (MaybeachDeviceActivationResponse) extractErrorDataFetch(responseEntity, MaybeachDeviceActivationResponse.class);
             }
             return response;
         }catch (IOException e){
             log.error("Exception occurred:: deviceActivationRequest: {}", new HashMap<>());
         }
-        return new HashMap();
+        return response;
     }
 
     private static Map<String, Object> getOnboardingObjectMap(CbsDeviceActivationRequest deviceCertificationRequest) {
@@ -281,11 +275,11 @@ public class GraphQLUtility {
         long timestampSeconds = instant.getEpochSecond();
         return Math.toIntExact(timestampSeconds);
     }
-    public Map callOnboardingRequestStatus(String deviceId, String url) {
+    public Map<String, Object> callOnboardingRequestStatus(String deviceId, String url) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         generateMayBeachHeaders(headers);
-        Map<String, Object> payload = new ConcurrentHashMap();
+        Map<String, Object> payload = new ConcurrentHashMap<>();
         payload.put("dev_id", deviceId);
         try {
         String mutation = META_DATA +
@@ -309,15 +303,12 @@ public class GraphQLUtility {
             log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                log.info("Got here 1");
                 String responseBody = responseEntity.getBody();
                 response = objectMapper.readValue(responseBody, Map.class);
-                if(!responseBody.contains("status")){
-                    log.info("Got here 2");
+                if(null != responseBody && !responseBody.contains("status")){
                     response.put("status", response.get("error"));
                     return response;
                 }
-                log.info("Got here 3");
             } else {
                 response = extractErrorData(responseEntity, response);
             }
@@ -328,61 +319,7 @@ public class GraphQLUtility {
         return new HashMap<>();
     }
 
-    public Map demographicsDataPreEnrolmentVerificationRequest(CbsDeviceActivationRequest deviceCertificationRequest, String url) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-        generateMayBeachHeaders(headers);
-        Map<String, Object> payload = new ConcurrentHashMap();
-        payload.put(DEVICE_ID, deviceCertificationRequest.getProviderDeviceIdentifier());
-        payload.put("date", Timestamp.from(Calendar.getInstance().toInstant()));
-        payload.put("partner", deviceCertificationRequest.getEsaCode());
-        payload.put("fep_agent_nin", deviceCertificationRequest.getRequesterNin());
-        payload.put("machine_tag", deviceCertificationRequest.getMachineTag());
-        payload.put("first_name", deviceCertificationRequest.getRequesterFirstname());
-        payload.put("last_name", deviceCertificationRequest.getRequesterLastname());
-        payload.put("email", deviceCertificationRequest.getRequesterEmail());
-        payload.put("phone_number", deviceCertificationRequest.getRequesterPhoneNumber());
-        payload.put("esa_name", deviceCertificationRequest.getEsaName());
-        payload.put("requestid", deviceCertificationRequest.getRequestId());
-        payload.put("longitude", deviceCertificationRequest.getActivationLocationLongitude());
-        payload.put("latitude", deviceCertificationRequest.getActivationLocationLatitude());
-        try {
-            String mutation = META_DATA +
-                    "  demographicsDataPreEnrolmentVerification(input:  " + convertToJsonString(payload) + " ) {\n" +
-                    "    code\n" +
-                    "    message\n" +
-                    "  }\n" +
-                    "}";
-
-            Map response = new ConcurrentHashMap();
-
-            HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, headers);
-            ResponseEntity<String> responseEntity = restTemplate.exchange(
-                    url,
-                    HttpMethod.POST,
-                    requestEntity,
-                    String.class
-            );
-
-            log.info(RESPONSE_FROM_MAY_BEACH, responseEntity);
-
-            if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                String responseBody = responseEntity.getBody();
-                response = objectMapper.readValue(responseBody, Map.class);
-                if (!responseBody.contains("message") && null == response.get("error")){
-                    return new HashMap<>();
-                }
-            } else {
-                response = extractErrorData(responseEntity, response);
-            }
-            return response;
-        }catch (IOException e){
-            Utility.logError("Exception occurred:: demographicsDataPreEnrolmentVerificationRequest: {}", e.getMessage());
-        }
-        return new HashMap<>();
-    }
-
-    public Map fetchActivationData(String deviceId, String requestId, String url) throws IOException {
+    public FetchActivationResponse fetchActivationData(String deviceId, String requestId, String url) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
         generateMayBeachHeaders(headers);
@@ -396,7 +333,7 @@ public class GraphQLUtility {
                 "  }\n" +
                 "}";
 
-        Map<String, Object> response = new ConcurrentHashMap<>();
+        FetchActivationResponse response;
         HttpEntity<Map<String, Object>> requestEntity = buildGraphQLRequest(mutation, headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
                 url,
@@ -409,18 +346,22 @@ public class GraphQLUtility {
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody();
-            if(null != responseBody && !responseBody.contains("message")){
-                if(null == response.get("error")){
-                    return new HashMap<>();
-                }
-                response.put("error", response.get("error"));
-            }
-            response = objectMapper.readValue(responseBody, Map.class);
+            response = objectMapper.readValue(responseBody, FetchActivationResponse.class);
         }
         else {
-            response = extractErrorData(responseEntity, response);
+            response = (FetchActivationResponse) extractErrorDataFetch(responseEntity, FetchActivationResponse.class);
         }
         return response;
+    }
+
+
+    private <T> Object extractErrorDataFetch(ResponseEntity<String> responseEntity, Class<T> obj){
+        try {
+            String responseBody = responseEntity.getBody();
+            return objectMapper.readValue(responseBody, obj);
+        }catch (JsonProcessingException e){
+            return null;
+        }
     }
 
     private Map<String, Object> extractErrorData(ResponseEntity<String> responseEntity, Map<String, Object> response){

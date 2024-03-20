@@ -7,12 +7,11 @@ public class CbsPaymentStatusResponse extends MayBeachResponse {
 	private Object data;
 	
 
-	@Override
 	public Object getData() {
 		return data;
 	}
 
-	@Override
+
 	public void setData(Object data) {
 		this.data = data;
 	}
